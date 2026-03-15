@@ -1,6 +1,6 @@
 import yaml
 
-FILE_PATH = "./composite-file-generator/networks/networks_config.yaml"
+FILE_PATH = "./compose-file-generator/networks/networks_config.yaml"
 
 def generate_networks():
     with open(FILE_PATH, "r") as file:

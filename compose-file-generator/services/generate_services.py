@@ -3,8 +3,8 @@ import yaml
 
 # Constants
 #
-BASE_CLIENT_FILE_PATH = "./composite-file-generator/services/base_client_config.yaml"
-SERVER_FILE_PATH = "./composite-file-generator/services/server_config.yaml"
+BASE_CLIENT_FILE_PATH = "./compose-file-generator/services/base_client_config.yaml"
+SERVER_FILE_PATH = "./compose-file-generator/services/server_config.yaml"
 
 SERVICES_DOCKER_COMPOSE_TAG = "services"
 CONTAINER_NAME_DOCKER_COMPOSE_TAG = "container_name"
