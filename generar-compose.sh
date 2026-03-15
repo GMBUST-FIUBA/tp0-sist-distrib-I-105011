@@ -1,4 +1,9 @@
 #!/bin/bash
+echo "--- DEBUG ---"
+echo "Ejecutando desde: $(pwd)"
+echo "Ruta del script: $0"
+touch "dummy.txt" 
+echo "--- END DEBUG ---"
 if [[ $2 -le 0 ]] ; then
     echo "ERROR: Cantidad de clientes no permitida"
     exit 1
