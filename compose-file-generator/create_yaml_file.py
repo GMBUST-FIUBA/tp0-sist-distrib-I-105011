@@ -13,3 +13,4 @@ def create_yaml_file(total_clients, file_name):
 
   with open(file_name, "w") as yaml_file:
     yaml.dump(yaml_file_data, yaml_file)
+    yaml_file.flush()
