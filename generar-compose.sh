@@ -7,5 +7,5 @@ else
     echo "Cantidad de clientes: $2"
     python3 ./compose-file-generator/compose_file_generator.py $1 $2
 fi
-sleep 3
+sleep 10
 exit 0
