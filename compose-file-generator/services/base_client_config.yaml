@@ -8,4 +8,4 @@ networks:
 depends_on:
   - server
 volumes:
-  - ./client/config.yaml:./client/volumes/client_config.yaml
+  - ./client/config.yaml:/client/volumes/client_config.yaml
