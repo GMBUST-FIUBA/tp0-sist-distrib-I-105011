@@ -7,3 +7,5 @@ server:
     - LOGGING_LEVEL=DEBUG
   networks:
     - testing_net
+  volumes:
+    - ./server/config.ini:./server/volumes/server_config.ini

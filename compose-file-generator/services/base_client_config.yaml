@@ -7,3 +7,5 @@ networks:
   - testing_net
 depends_on:
   - server
+volumes:
+  - ./client/config.yaml:./client/volumes/client_config.yaml
