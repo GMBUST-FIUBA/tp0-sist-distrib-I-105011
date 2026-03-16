@@ -1,6 +1,7 @@
 container_name: client
 image: client:latest
 entrypoint: /client
+environment:
 networks:
   - testing_net
 depends_on:
