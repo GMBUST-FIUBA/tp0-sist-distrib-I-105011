@@ -32,6 +32,8 @@ def _generate_clients(total_clients):
 
         # Set client ID
         current_client_cli_id = CLIENT_CLI_ID_DOCKER_COMPOSE_TAG + str(current_client_id)
+        if ENVIRONMENT_DOCKER_COMPOSE_TAG not in current_client_elems:
+            current_client_elems[ENVIRONMENT_DOCKER_COMPOSE_TAG] = []
         current_client_elems[ENVIRONMENT_DOCKER_COMPOSE_TAG].append(current_client_cli_id)
 
         # Store new client
