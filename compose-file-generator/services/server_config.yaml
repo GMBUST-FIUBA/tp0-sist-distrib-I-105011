@@ -8,4 +8,4 @@ server:
   networks:
     - testing_net
   volumes:
-    - ./server/config.ini:/server/volumes/server_config.ini
+    - ./server/config.ini:/volumes/server_config.ini
