@@ -1,5 +1,5 @@
 #!/bin/bash
-if [[ $2 -le 0 ]] ; then
+if [[ $2 -lt 0 ]] ; then
     echo "ERROR: Cantidad de clientes no permitida"
     exit 1
 else
