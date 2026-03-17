@@ -108,6 +108,26 @@ pip install pyyaml
 ### Ejercicio N°2:
 Modificar el cliente y el servidor para lograr que realizar cambios en el archivo de configuración no requiera reconstruír las imágenes de Docker para que los mismos sean efectivos. La configuración a través del archivo correspondiente (`config.ini` y `config.yaml`, dependiendo de la aplicación) debe ser inyectada en el container y persistida por fuera de la imagen (hint: `docker volumes`).
 
+#### Resolución de ejercicio 2
+
+Para esto se utilizó `Docker volumes`, que permite que existan datos (o archivos) que puedan accederse por múltiples contenedores y que existan "por fuera" de los mismos. De esta manera, al aplicarlo a la configuración del servidor y los clientes, no es necesario reconstruir los contenedores al cambiar la configuración de alguno de ellos.
+
+Esto se logró al incorporar a la configuración de los clientes y del servidor la sección de `volumes` en el archivo de `Docker Compose`. En esa sección se puede definir qué datos son los que se persistirán por fuera de los contenedores (primera dirección antes de los dos puntos) y luego en qué parte del contenedor se encontrarán dichos datos para ser utilizados (segunda dirección luego de los dos puntos).
+
+En particular se muestran las configuraciones usadas:
+
+- En los clientes:
+```
+volumes:
+  - ./client/config.yaml:/volumes/client_config.yaml
+```
+
+- En el servidor:
+```
+volumes:
+- ./server/config.ini:/volumes/server_config.ini
+```
+
 
 ### Ejercicio N°3:
 Crear un script de bash `validar-echo-server.sh` que permita verificar el correcto funcionamiento del servidor utilizando el comando `netcat` para interactuar con el mismo. Dado que el servidor es un echo server, se debe enviar un mensaje al servidor y esperar recibir el mismo mensaje enviado.
