@@ -136,6 +136,12 @@ En caso de que la validación sea exitosa imprimir: `action: test_echo_server | 
 
 El script deberá ubicarse en la raíz del proyecto. Netcat no debe ser instalado en la máquina _host_ y no se pueden exponer puertos del servidor para realizar la comunicación (hint: `docker network`). `
 
+#### Resolución de ejercicio 3
+
+Se creó el script `validar-echo-server.sh` en donde se crea la imagen y luego se ejecuta un contenedor a partir de una imagen del sistema operativo Alpine en la cual se ejecuta un nuevo script (`send_server_probe.sh`) que envía un mensaje utilizando `netcat`, herramienta incluída en Alpine, al servidor y luego se verifica que se haya recibido el mensaje enviado.
+
+Todos los archivos que utiliza `validar-echo-server.sh` están ubicados en la carpeta `echo-server-validator.sh`, donde se encuentran el script que envía por `netcat` el mensaje de prueba y el archivo `Dockerfile` para la creación de la imagen del contenedor del programa que envía el mensaje.
+
 
 ### Ejercicio N°4:
 Modificar servidor y cliente para que ambos sistemas terminen de forma _graceful_ al recibir la signal SIGTERM. Terminar la aplicación de forma _graceful_ implica que todos los _file descriptors_ (entre los que se encuentran archivos, sockets, threads y procesos) deben cerrarse correctamente antes que el thread de la aplicación principal muera. Loguear mensajes en el cierre de cada recurso (hint: Verificar que hace el flag `-t` utilizado en el comando `docker compose down`).
