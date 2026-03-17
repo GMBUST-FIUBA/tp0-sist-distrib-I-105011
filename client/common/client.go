@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"net"
+	"os"
 	"time"
 
 	"github.com/op/go-logging"
@@ -23,6 +24,7 @@ type ClientConfig struct {
 type Client struct {
 	config ClientConfig
 	conn   net.Conn
+	sigterm_channel	chan	os.Signal
 }
 
 // NewClient Initializes a new client receiving the configuration
@@ -86,4 +88,17 @@ func (c *Client) StartClientLoop() {
 
 	}
 	log.Infof("action: loop_finished | result: success | client_id: %v", c.config.ID)
+}
+
+const RETRY_SOCKET_CLOSE_TIME_MILLISECONDS time.Duration = 100
+
+// Shuts down client gracefully
+func (c *Client) shutdownClient() {
+	for {
+		err := c.conn.Close()
+		if err == nil {
+			break
+		}
+		time.Sleep(time.Millisecond * RETRY_SOCKET_CLOSE_TIME_MILLISECONDS)
+	}
 }
