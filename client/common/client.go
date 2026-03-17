@@ -32,6 +32,7 @@ type Client struct {
 func NewClient(config ClientConfig) *Client {
 	client := &Client{
 		config: config,
+		sigterm_channel: make(chan os.Signal, 1),
 	}
 	return client
 }
@@ -58,7 +59,13 @@ func (c *Client) StartClientLoop() {
 	// Messages if the message amount threshold has not been surpassed
 	for msgID := 1; msgID <= c.config.LoopAmount; msgID++ {
 		// Create the connection the server in every loop iteration. Send an
-		c.createClientSocket()
+		select {
+		case <-c.sigterm_channel:
+			log.Infof("action: client_shutdown | result: success | client_id: %v", c.config.ID)
+			return
+		default:
+			c.createClientSocket()
+		}
 
 		// TODO: Modify the send to avoid short-write
 		fmt.Fprintf(
@@ -88,17 +95,4 @@ func (c *Client) StartClientLoop() {
 
 	}
 	log.Infof("action: loop_finished | result: success | client_id: %v", c.config.ID)
-}
-
-const RETRY_SOCKET_CLOSE_TIME_MILLISECONDS time.Duration = 100
-
-// Shuts down client gracefully
-func (c *Client) shutdownClient() {
-	for {
-		err := c.conn.Close()
-		if err == nil {
-			break
-		}
-		time.Sleep(time.Millisecond * RETRY_SOCKET_CLOSE_TIME_MILLISECONDS)
-	}
 }
