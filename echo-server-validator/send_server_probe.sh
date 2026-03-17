@@ -1,6 +1,12 @@
 #!/bin/sh
 SERVER="server"
 PORT=12345
+PROBE_MESSAGE="PROBE_SERVER"
 
 # Send probe
-echo "PROBE_SERVER" | nc -w 10 $SERVER $PORT
+response=$(echo $PROBE_MESSAGE | nc -w 10 $SERVER $PORT)
+if [ $response -eq $PROBE_MESSAGE ] ; then
+    exit 0
+else
+    exit 1
+fi
