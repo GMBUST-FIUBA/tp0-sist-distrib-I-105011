@@ -148,6 +148,15 @@ Modificar servidor y cliente para que ambos sistemas terminen de forma _graceful
 
 #### Resolución de ejercicio 4
 
+Se realizaron cambios tanto en el cliente como el servidor para poder realizar acciones de forma tal que terminen de forma _graceful_ al recibir la señal **SIGTERM**. Ambos lenguajes en los que se realizaron ambos sistemas proveen formas de capturar las señales y de definir un comportamiento en particular de forma nativa, por lo que no se requierieron librerías adicionales a las que vienen en el lenguaje.
+
+##### **Servidor**
+
+Todos los cambios fueron realizados en el código de la estructura que representa al servidor, de forma que se aisle lo más posible las acciones del servidor del resto del programa. Para ello se utilizó la librería _signal_ para redefinir el comportamiento del la estructura que representa el servidor una vez que se reciba la señal **SIGTERM**, la cual cierra el socket del server al recibir la señal y luego finaliza el programa de enviando el código correspondiente. Además se aplicó una serie de reintentos por si fallara el cerrado del socket del servidor.
+
+##### **Cliente**
+
+Todos los cambios fueron realizados en el código de la estructura que representa al cliente para aislar la interrupción y su manejo del resto del programa. Para ello se utilizó la librería _os/signal_ para definir un canal al cual se envía la señal de **SIGTERM** para luego ser leído por la estructura que representa al cliente en el programa. Golang permite la lectura de las señales a través de un canal que se asocia a dicha señal (o a muchas si se desea) y se le otorga al desarrollador la posibilidad de realizar las acciones necesarias cuando lo considere.
 
 
 ## Parte 2: Repaso de Comunicaciones
