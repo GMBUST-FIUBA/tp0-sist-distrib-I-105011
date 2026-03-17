@@ -93,6 +93,18 @@ python3 mi-generador.py $1 $2
 
 En el archivo de Docker Compose de salida se pueden definir volúmenes, variables de entorno y redes con libertad, pero recordar actualizar este script cuando se modifiquen tales definiciones en los sucesivos ejercicios.
 
+#### Resolución
+
+El script realizado funciona como una interfaz para invocar un nuevo script de python que utiliza la librería PyYaml para manipular y generar los archivos `Compose`. En el mismo se realizan unas verificaciones de los argumentos básicas: máximo 2 argumentos y que no se coloque una cantidad negatica de clients.
+
+Los scripts utilizados para generar el archivo `Compose` resultante y las funciones que se utilizan, así como las plantillas en las que se basan los servicios se encuentran dentro de la carpeta `compose-file-generator`.
+
+**ADVERTENCIA**: Antes de ejecutar el script es necesario instalar la librería PyYaml (la cual puede no estar en el entorno virtual, si se usa uno). La misma puede instalarse a partir del siguiente comando de terminal:
+
+```
+pip install pyyaml
+```
+
 ### Ejercicio N°2:
 Modificar el cliente y el servidor para lograr que realizar cambios en el archivo de configuración no requiera reconstruír las imágenes de Docker para que los mismos sean efectivos. La configuración a través del archivo correspondiente (`config.ini` y `config.yaml`, dependiendo de la aplicación) debe ser inyectada en el container y persistida por fuera de la imagen (hint: `docker volumes`).
 
