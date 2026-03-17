@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/op/go-logging"
@@ -34,6 +36,7 @@ func NewClient(config ClientConfig) *Client {
 		config: config,
 		sigterm_channel: make(chan os.Signal, 1),
 	}
+	signal.Notify(client.sigterm_channel, syscall.SIGTERM)
 	return client
 }
 
