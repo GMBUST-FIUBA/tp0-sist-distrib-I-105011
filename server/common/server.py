@@ -1,7 +1,9 @@
 import socket
 import logging
 import signal
-import sys
+import time
+
+SHUTDOWM_RETRY_TIME = 0.1
 
 class Server:
     def __init__(self, port, listen_backlog):
@@ -62,5 +64,11 @@ class Server:
         return c
     
     def __shut_down_server(self, signum, frame):
-        self._server_socket.close()
+        while True:
+            try:
+                self._server_socket.close()
+                break
+            except:
+                time.sleep(SHUTDOWM_RETRY_TIME)
+        
         self._keep_running = False
