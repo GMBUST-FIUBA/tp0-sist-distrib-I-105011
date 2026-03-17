@@ -93,9 +93,9 @@ python3 mi-generador.py $1 $2
 
 En el archivo de Docker Compose de salida se pueden definir volúmenes, variables de entorno y redes con libertad, pero recordar actualizar este script cuando se modifiquen tales definiciones en los sucesivos ejercicios.
 
-#### Resolución
+#### Resolución de ejercicio 1
 
-El script realizado funciona como una interfaz para invocar un nuevo script de python que utiliza la librería PyYaml para manipular y generar los archivos `Compose`. En el mismo se realizan unas verificaciones de los argumentos básicas: máximo 2 argumentos y que no se coloque una cantidad negatica de clients.
+El script realizado funciona como una interfaz para invocar un nuevo script de python que utiliza la librería PyYaml para manipular y generar los archivos `Compose`. En el mismo se realizan unas verificaciones básicas de los argumentos: máximo 2 argumentos al momento de invocar el script y que no se coloque una cantidad negatica de clients.
 
 Los scripts utilizados para generar el archivo `Compose` resultante y las funciones que se utilizan, así como las plantillas en las que se basan los servicios se encuentran dentro de la carpeta `compose-file-generator`.
 
