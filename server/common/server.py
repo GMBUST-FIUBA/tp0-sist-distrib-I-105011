@@ -1,6 +1,7 @@
 import socket
 import logging
 import signal
+import sys
 import time
 
 SHUTDOWM_RETRY_TIME = 0.1
@@ -13,7 +14,6 @@ class Server:
         self._server_socket.listen(listen_backlog)
 
         # Initialize server's shutdown mechanism
-        self._keep_running = True
         signal.signal(signal.SIGTERM, self.__shut_down_server)
 
     def run(self):
@@ -26,7 +26,7 @@ class Server:
         """
 
         # Server keeps accepting connections until SIGTERM is launched
-        while self._keep_running:
+        while True:
             client_sock = self.__accept_new_connection()
             self.__handle_client_connection(client_sock)
 
@@ -70,5 +70,4 @@ class Server:
                 break
             except:
                 time.sleep(SHUTDOWM_RETRY_TIME)
-        
-        self._keep_running = False
+        sys.exit(0)
