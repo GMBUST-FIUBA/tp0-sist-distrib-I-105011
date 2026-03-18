@@ -220,9 +220,7 @@ Sin embargo pueden ocurrir errores y se envían respuestas al comando *ADD* seg�
 
 Cada uno de los errores está debidamente registrado en los *logs*.
 
-Ahora bien, para evitar problemas en cuanto a los _short read_ y _short write_ se envía, antes de cada mensaje, 2 bytes con la longitud del mensaje enviado. Esto se hace para siempre saber lo que se espera por el socket y poder llevar un registro de los caracteres restantes, evitando así los fenómenos mencionados.
-
-Por último, cabe aclarar que se utilizará el *encoding* de UTF-8 para los caracteres en este protocolo y que se utilizará *Big Endian* para serializar los mensajes.
+Ahora bien, para evitar problemas en cuanto a los _short read_ y _short write_ se envía, antes de cada mensaje, 2 bytes con la longitud del mensaje codificado en bytes. Cabe aclarar que se utilizará el *encoding* de UTF-8 para los caracteres en este protocolo y que se utilizará *Big Endian* para serializar los mensajes (más que nada la longitud), por ende primero se codifica el mensaje y luego se calcula la longitud en bytes del mismo. Esto se hace para siempre saber lo que se espera por el socket y poder llevar un registro de los caracteres restantes, evitando así los fenómenos mencionados.
 
 
 ### Ejercicio N°6:

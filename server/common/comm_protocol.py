@@ -35,5 +35,15 @@ def __read_n_bytes(rx_socket, n_bytes):
     return data
 
 
-def send_message():
-    return
+# Sends message according to protocol defined on Readme.
+def send_message(tx_socket, message):
+    content = message.encode("utf-8", errors="ignore")
+    header = len(message)
+
+    # Append header and content
+    encoded_message = bytearray()
+    encoded_message.extend(header)
+    encoded_message.extend(content)
+
+    # Send message
+    tx_socket.sendall(encoded_message)
