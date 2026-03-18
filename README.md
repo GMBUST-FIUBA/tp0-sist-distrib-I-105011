@@ -185,6 +185,42 @@ Se deberá implementar un módulo de comunicación entre el cliente y el servido
 * Correcto empleo de sockets, incluyendo manejo de errores y evitando los fenómenos conocidos como [_short read y short write_](https://cs61.seas.harvard.edu/site/2018/FileDescriptors/).
 
 
+#### Resolución de ejercicio 5
+
+##### Variables de entorno
+En primer lugar se utilizaron variables de entorno para poder insertar las apuestas. La estructura de la variable que contiene la información del cliente y su apuesta es la siguiente (siendo *N* un número natural): `BET{N}={NOMBRE},{APELLIDO},{DOCUMENTO},{NACIMIENTO},{NUMERO}`.
+
+Donde:
+- NOMBRE: Es el nombre (o nombres) de la persona.
+- APELLIDO: Es el apellido (o apellidos) de la persona.
+- DOCUMENTO: Número de documento.
+- NACIMIENTO: Fecha de nacimiento en el formato YYYY-MM-DD (año, mes y día).
+- NUMERO: Número por el cual se hace la apuesta.
+
+La utilización del identificador *BET{N}* (siendo *N* un número natural) es para poder identificar una apuesta de entre todas las que se realizan. Notar que es posible entonces que se hagan apuestas duplicadas, pero como se mostrará más adelante es un error contemplado por el protocolo.
+
+##### Protocolo de comunicación
+Las comunicaciones se realizarán utilizando TCP pero también es necesario implementar un protocolo de mayor nivel para poder almacenar las apuestas realizadas.
+
+Supóngase que se quiere almacenar una apuesta totalmente nueva y que el usuario posee la mayoría de edad (considerada aquí como de 18 años). Entonces:
+
+1) La agencia envía el comando `ADD {N},{NOMBRE},{APELLIDO},{DOCUMENTO},{NACIMIENTO},{NUMERO}`.
+
+2) El servidor recibe el comando *ADD* y revisa: que el usuario sea mayor de edad, que no haya realizado una apuesta en ese número y que ese número esté disponible.
+
+3) Como se dijo que la apuesta es totalmente nueva y que el usuario es mayor de edad se almacena la apuesta y se responde con un `OK {N}`, siendo *N* el mismo valor que en el comando *ADD*.
+
+Sin embargo pueden ocurrir errores y se envían respuestas al comando *ADD* según el tipo, los cuales se detallan a continuación:
+
+- `ERR NOT_ADULT`: El usuario es menor de edad.
+- `ERR NUMBER_TAKEN`: El número ya fue usado en otra apuesta por otra persona.
+- `ERR REPEATED_BET`: La persona repitió apuesta (mismo número que una apuesta anterior).
+- `ERR NOT_VALID_NUMBER`: El número no es válido (no pertenece al rango de números de la lotería).
+- `ERR NOT_VALID_DNI`: El número de DNI no es válido.
+
+Cada uno de los errores está debidamente registrado en los *logs*.
+
+
 ### Ejercicio N°6:
 Modificar los clientes para que envíen varias apuestas a la vez (modalidad conocida como procesamiento por _chunks_ o _batchs_). 
 Los _batchs_ permiten que el cliente registre varias apuestas en una misma consulta, acortando tiempos de transmisión y procesamiento.
