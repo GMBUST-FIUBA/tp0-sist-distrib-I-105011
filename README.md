@@ -212,11 +212,11 @@ Supóngase que se quiere almacenar una apuesta totalmente nueva y que el usuario
 
 Sin embargo pueden ocurrir errores y se envían respuestas al comando *ADD* según el tipo, los cuales se detallan a continuación:
 
-- `ERR NOT_ADULT`: El usuario es menor de edad.
-- `ERR NUMBER_TAKEN`: El número ya fue usado en otra apuesta por otra persona.
-- `ERR REPEATED_BET`: La persona repitió apuesta (mismo número que una apuesta anterior).
-- `ERR NOT_VALID_NUMBER`: El número no es válido (no pertenece al rango de números de la lotería).
-- `ERR NOT_VALID_DNI`: El número de DNI no es válido.
+- `ERR ${N} NOT_ADULT`: El usuario es menor de edad.
+- `ERR ${N} NUMBER_TAKEN`: El número ya fue usado en otra apuesta por otra persona.
+- `ERR ${N} REPEATED_BET`: La persona repitió apuesta (mismo número que una apuesta anterior).
+- `ERR ${N} NOT_VALID_NUMBER`: El número no es válido (no pertenece al rango de números de la lotería).
+- `ERR ${N} NOT_VALID_DNI`: El número de DNI no es válido.
 
 Cada uno de los errores está debidamente registrado en los *logs*.
 
