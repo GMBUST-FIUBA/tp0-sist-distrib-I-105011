@@ -1,4 +1,40 @@
+from utils import Bet
+
+import comm_protocol
+
+# Total message length in bytes
 TOTAL_MESSAGE_SIZE_BYTES = 2
+
+# Add bet header
+ADD_BET_HEADER = "ADD "
+
+# Message parts positions
+BET_ID_MSG_POS = 0
+BET_CLIENT_FIRST_NAME_MSG_POS = 1
+BET_CLIENT_SURNAME_MSG_POS = 2
+BET_CLIENT_DOCUMENT_MSG_POS = 3
+BET_CLIENT_BIRTHDAY_MSG_POS = 4
+BET_CLIENT_AGENCY_MSG_POS = 5
+BET_CLIENT_LOTTERY_NUMBER_MSG_POS = 6
+
+# Create new bet
+def read_new_bet(rx_socket):
+    message = comm_protocol.read_message(rx_socket)
+    parsed_message = _parse_message(message)
+
+    new_bet = Bet(agency=parsed_message[BET_CLIENT_AGENCY_MSG_POS],
+                  first_name=parsed_message[BET_CLIENT_FIRST_NAME_MSG_POS],
+                  last_name=parsed_message[BET_CLIENT_SURNAME_MSG_POS],
+                  document=parsed_message[BET_CLIENT_DOCUMENT_MSG_POS],
+                  birthdate=parsed_message[BET_CLIENT_BIRTHDAY_MSG_POS],
+                  number=parsed_message[BET_CLIENT_LOTTERY_NUMBER_MSG_POS])
+
+    return (parsed_message[BET_ID_MSG_POS], new_bet)
+
+def _parse_message(message: str):
+    message = message.removeprefix(ADD_BET_HEADER)
+    split_message = message.split(',')
+    return split_message
 
 # Reads message according to protocol defined on Readme.
 def read_message(rx_socket):
@@ -10,12 +46,14 @@ def read_message(rx_socket):
     
     return message
 
+# Reads header of message, which is the byte length of the message
 def _read_message_header(rx_socket):
     header = __read_n_bytes(rx_socket, TOTAL_MESSAGE_SIZE_BYTES)
     if header is None:
         return None
     return int.from_bytes(header, byteorder="big")
 
+# Reads content of message
 def _read_message_content(rx_socket, size):
     content = __read_n_bytes(rx_socket, size)
     if content is None:
