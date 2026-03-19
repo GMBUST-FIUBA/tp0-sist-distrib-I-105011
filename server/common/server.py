@@ -1,5 +1,7 @@
 from bet_management import BetManager
+from comm_protocol import read_new_bet, send_message, OK_MESSAGE
 
+import errors
 import socket
 import logging
 import signal
@@ -42,6 +44,33 @@ class Server:
         If a problem arises in the communication with the client, the
         client socket will also be closed
         """
+        while True:
+            new_bet = read_new_bet(client_sock)
+
+            # If client closes the connection
+            if new_bet is None:
+                client_sock.close()
+                break
+
+            # Process bet
+            try:
+                self._bet_manager.store_bets_in_database(new_bet)
+                message = OK_MESSAGE
+            except errors.NotAdultClientException as e:
+                message = str(e)
+            except errors.AlreadyUsedNumberException as e:
+                message = str(e)
+            except errors.NotValidBetNumberException as e:
+                message = str(e)
+            except errors.NotValidDocumentException as e:
+                message = str(e)
+            except errors.RepeatedBetException as e:
+                message = str(e)
+
+            # Answer client
+            send_message()
+
+
         try:
             # TODO: Modify the receive to avoid short-reads
             msg = client_sock.recv(1024).rstrip().decode('utf-8')

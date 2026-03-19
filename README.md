@@ -204,19 +204,19 @@ Las comunicaciones se realizarán utilizando TCP pero también es necesario impl
 
 Supóngase que se quiere almacenar una apuesta totalmente nueva y que el usuario posee la mayoría de edad (considerada aquí como de 18 años). Entonces:
 
-1) La agencia envía el comando `ADD {N},{NOMBRE},{APELLIDO},{DOCUMENTO},{NACIMIENTO},{AGENCIA},{NUMERO}`.
+1) La agencia envía el comando `ADD {NOMBRE},{APELLIDO},{DOCUMENTO},{NACIMIENTO},{AGENCIA},{NUMERO}`.
 
 2) El servidor recibe el comando *ADD* y revisa: que el usuario sea mayor de edad, que no haya realizado una apuesta en ese número y que ese número esté disponible.
 
-3) Como se dijo que la apuesta es totalmente nueva y que el usuario es mayor de edad se almacena la apuesta y se responde con un `OK {N}`, siendo *N* el mismo valor que en el comando *ADD*.
+3) Como se dijo que la apuesta es totalmente nueva y que el usuario es mayor de edad se almacena la apuesta y se responde con un `OK`.
 
 Sin embargo pueden ocurrir errores y se envían respuestas al comando *ADD* según el tipo, los cuales se detallan a continuación:
 
-- `ERR ${N} NOT_ADULT`: El usuario es menor de edad.
-- `ERR ${N} NUMBER_TAKEN`: El número ya fue usado en otra apuesta por otra persona.
-- `ERR ${N} REPEATED_BET`: La persona repitió apuesta (mismo número que una apuesta anterior).
-- `ERR ${N} NOT_VALID_NUMBER`: El número no es válido (no pertenece al rango de números de la lotería).
-- `ERR ${N} NOT_VALID_DNI`: El número de DNI no es válido.
+- `ERR NOT_ADULT`: El usuario es menor de edad.
+- `ERR NUMBER_TAKEN`: El número ya fue usado en otra apuesta por otra persona.
+- `ERR REPEATED_BET`: La persona repitió apuesta (mismo número que una apuesta anterior).
+- `ERR NOT_VALID_NUMBER`: El número no es válido (no pertenece al rango de números de la lotería).
+- `ERR NOT_VALID_DNI`: El número de DNI no es válido.
 
 Cada uno de los errores está debidamente registrado en los *logs*.
 

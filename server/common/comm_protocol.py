@@ -9,14 +9,16 @@ TOTAL_MESSAGE_SIZE_BYTES = 2
 # Add bet header
 ADD_BET_HEADER = "ADD "
 
+# Correctly processed bet
+OK_MESSAGE = "OK"
+
 # Message parts positions
-BET_ID_MSG_POS = 0
-BET_CLIENT_FIRST_NAME_MSG_POS = 1
-BET_CLIENT_SURNAME_MSG_POS = 2
-BET_CLIENT_DOCUMENT_MSG_POS = 3
-BET_CLIENT_BIRTHDAY_MSG_POS = 4
-BET_CLIENT_AGENCY_MSG_POS = 5
-BET_CLIENT_LOTTERY_NUMBER_MSG_POS = 6
+BET_CLIENT_FIRST_NAME_MSG_POS = 0
+BET_CLIENT_SURNAME_MSG_POS = 1
+BET_CLIENT_DOCUMENT_MSG_POS = 2
+BET_CLIENT_BIRTHDAY_MSG_POS = 3
+BET_CLIENT_AGENCY_MSG_POS = 4
+BET_CLIENT_LOTTERY_NUMBER_MSG_POS = 5
 
 ## Bets serialization and deserialization from protocol
 
@@ -25,7 +27,7 @@ def read_new_bet(rx_socket):
     message = comm_protocol.read_message(rx_socket)
 
     if message is None:
-        raise errors.CommunicationException("Socket had problems.")
+        return None
 
     parsed_message = _parse_message(message)
 
@@ -36,7 +38,7 @@ def read_new_bet(rx_socket):
                   birthdate=parsed_message[BET_CLIENT_BIRTHDAY_MSG_POS],
                   number=parsed_message[BET_CLIENT_LOTTERY_NUMBER_MSG_POS])
 
-    return (parsed_message[BET_ID_MSG_POS], new_bet)
+    return new_bet
 
 def _parse_message(message: str):
     message = message.removeprefix(ADD_BET_HEADER)

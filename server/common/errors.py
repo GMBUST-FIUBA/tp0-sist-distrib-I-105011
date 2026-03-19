@@ -1,23 +1,25 @@
-class CommunicationException:
-    """Raised when there is an error in the socket."""
-    pass
+NOT_ADULT_CLIENT_MSG = "ERR NOT_ADULT"
+NUMBER_ALREADY_TAKEN_MSG = "ERR NUMBER_TAKEN"
+REPEATED_BET_MSG = "ERR REPEATED_BET"
+NOT_VALID_NUMBER_MSG = "ERR NOT_VALID_NUMBER"
+NOT_VALID_DOC_MSG = "ERR NOT_VALID_DNI"
 
 class NotAdultClientException:
-    """Raised when the client is a minor."""
-    pass
+    def __init__(self, message=NOT_ADULT_CLIENT_MSG, *args, **kwargs):
+        super().__init__(message, *args, **kwargs)
 
 class AlreadyUsedNumberException:
-    """Raised when a number is taken by another person."""
-    pass
+    def __init__(self, message=NUMBER_ALREADY_TAKEN_MSG, *args, **kwargs):
+        super().__init__(message, *args, **kwargs)
 
 class RepeatedBetException:
-    """Raised when the client already betted on a number and wants to do it again."""
-    pass
+    def __init__(self, message=REPEATED_BET_MSG, *args, **kwargs):
+        super().__init__(message, *args, **kwargs)
 
 class NotValidBetNumberException:
-    """Raised when the bet number is not valid."""
-    pass
+    def __init__(self, message=NOT_VALID_NUMBER_MSG, *args, **kwargs):
+        super().__init__(message, *args, **kwargs)
 
 class NotValidDocumentException:
-    """Raised when the document number is not valid."""
-    pass
+    def __init__(self, message=NOT_VALID_DOC_MSG, *args, **kwargs):
+        super().__init__(message, *args, **kwargs)

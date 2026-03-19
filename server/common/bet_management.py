@@ -9,9 +9,7 @@ STRING_BIRTHDAY_FORMAT = '%Y-%m-%d'
 # Years to become adult
 ADULT_MINIMUM_AGE = 18
 
-class NotValidBetNumberException:
-    """Raised when the bet number is not valid."""
-    pass
+# Error messages
 
 
 class BetManager:
@@ -21,23 +19,18 @@ class BetManager:
 
     def store_bets_in_database(self, new_bet: Bet):
         # Check document number
-        try:
-            document = int(new_bet.document)
-            if document <= 0:
-                raise Exception
-        except:
-            raise errors.NotValidDocumentException("Not valid document")
+        if new_bet.document <= 0:
+            raise errors.NotValidDocumentException()
         
         # Check client age
         birthday_date = datetime.strptime(new_bet.birthdate, STRING_BIRTHDAY_FORMAT)
 
         if is_adult(birthday_date) == False:
-            raise errors.NotAdultClientException
+            raise errors.NotAdultClientException()
 
         # Check number selected
-        number = int(new_bet.number)
-        if number <= 0:
-            raise errors.NotValidBetNumberException
+        if new_bet.number <= 0:
+            raise errors.NotValidBetNumberException()
 
         # Store bet in manager and database
         if new_bet.number not in self.numbers_used:
@@ -50,9 +43,9 @@ class BetManager:
         elif new_bet.document in self.stored_bets:
             # Raise exception depending if the client already used the number or not
             if new_bet.number in self.stored_bets[new_bet.document]:
-                raise errors.RepeatedBetException
+                raise errors.RepeatedBetException()
             else:
-                raise errors.AlreadyUsedNumberException
+                raise errors.AlreadyUsedNumberException()
             
 
 
