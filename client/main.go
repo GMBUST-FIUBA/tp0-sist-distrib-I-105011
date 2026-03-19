@@ -15,6 +15,8 @@ import (
 
 var log = logging.MustGetLogger("log")
 
+const STORED_BETS_FILE_PATH = "./data/test_client_bet.env"
+
 // InitConfig Function that uses viper library to parse configuration parameters.
 // Viper is configured to read variables from both environment variables and the
 // config file ./config.yaml. Environment variables takes precedence over parameters
@@ -23,8 +25,16 @@ var log = logging.MustGetLogger("log")
 func InitConfig() (*viper.Viper, error) {
 	v := viper.New()
 
-	// Configure viper to read env variables with the CLI_ prefix
 	v.AutomaticEnv()
+
+	// Configure viper to read bets from env file
+	v.SetConfigFile(STORED_BETS_FILE_PATH)
+	v.SetConfigType("env")
+	if err := v.ReadInConfig(); err != nil {
+		fmt.Printf("Configuration could find environment file")
+	}
+
+	// Configure viper to read env variables with the CLI_ prefix
 	v.SetEnvPrefix("cli")
 	// Use a replacer to replace env variables underscores with points. This let us
 	// use nested configurations in the config file and at the same time define
