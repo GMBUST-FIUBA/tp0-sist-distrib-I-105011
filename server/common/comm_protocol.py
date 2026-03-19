@@ -92,7 +92,7 @@ def send_message(tx_socket, message):
 
     # Append header and content
     encoded_message = bytearray()
-    encoded_message.extend(header)
+    encoded_message.extend(header.to_bytes(TOTAL_MESSAGE_SIZE_BYTES, "big"))
     encoded_message.extend(content)
 
     # Send message

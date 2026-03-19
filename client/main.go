@@ -156,8 +156,8 @@ func main() {
 	agency_number := uint(agency_number_str)
 
 	// Read and order bets
-	bets = ReadOrderedBets(v)
+	bets := ReadOrderedBets(v)
 
 	client := common.NewClient(agency_number, clientConfig)
-	client.StartClientLoop()
+	client.StartClientLoop(bets)
 }
