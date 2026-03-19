@@ -188,7 +188,7 @@ Se deberá implementar un módulo de comunicación entre el cliente y el servido
 #### Resolución de ejercicio 5
 
 ##### Variables de entorno
-En primer lugar se utilizaron variables de entorno para poder insertar las apuestas. Cada local de lotería posee un identificador numérico único (que se denotará como AGENCIA de ahora en más). La estructura de la variable que contiene la información del cliente y su apuesta es la siguiente (siendo *N* un número natural): `BET{N}={NOMBRE},{APELLIDO},{DOCUMENTO},{NACIMIENTO},{NUMERO}`.
+En primer lugar se utilizaron variables de entorno para poder insertar las apuestas. Cada local de lotería posee un identificador numérico único (que se denotará como AGENCIA de ahora en más) que se agrega como variable de entorno usando la variable `AGENCY=${AGENCY_NUMBER}`. La estructura de la variable que contiene la información del cliente y su apuesta es la siguiente (siendo *N* un número natural): `BET{N}=${NOMBRE},${APELLIDO},${DOCUMENTO},${NACIMIENTO},${NUMERO}`.
 
 Donde:
 - NOMBRE: Es el nombre (o nombres) de la persona.
@@ -204,7 +204,7 @@ Las comunicaciones se realizarán utilizando TCP pero también es necesario impl
 
 Supóngase que se quiere almacenar una apuesta totalmente nueva y que el usuario posee la mayoría de edad (considerada aquí como de 18 años). Entonces:
 
-1) La agencia envía el comando `ADD {NOMBRE},{APELLIDO},{DOCUMENTO},{NACIMIENTO},{AGENCIA},{NUMERO}`.
+1) La agencia envía el comando `ADD ${NOMBRE},${APELLIDO},${DOCUMENTO},${NACIMIENTO},${AGENCIA},${NUMERO}`.
 
 2) El servidor recibe el comando *ADD* y revisa: que el usuario sea mayor de edad, que no haya realizado una apuesta en ese número y que ese número esté disponible.
 
