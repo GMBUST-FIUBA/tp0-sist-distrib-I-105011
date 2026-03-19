@@ -17,7 +17,8 @@ func SendBet(socket net.Conn, bet Bet, agency_number uint) error {
 	content = append(content, serialized_bet...)
 	
 	// Calculate total message length
-	total_length_bytes := binary.BigEndian.AppendUint16(nil, uint16(len(content)))
+	total_length_bytes := make([]byte, TOTAL_MSG_HEADER_BYTES)
+	binary.BigEndian.PutUint16(total_length_bytes, uint16(len(content)))
 
 	// Create new message
 	var message []byte
