@@ -1,6 +1,7 @@
 from utils import Bet
 
 import comm_protocol
+import errors
 
 # Total message length in bytes
 TOTAL_MESSAGE_SIZE_BYTES = 2
@@ -17,9 +18,15 @@ BET_CLIENT_BIRTHDAY_MSG_POS = 4
 BET_CLIENT_AGENCY_MSG_POS = 5
 BET_CLIENT_LOTTERY_NUMBER_MSG_POS = 6
 
+## Bets serialization and deserialization from protocol
+
 # Create new bet
 def read_new_bet(rx_socket):
     message = comm_protocol.read_message(rx_socket)
+
+    if message is None:
+        raise errors.CommunicationException("Socket had problems.")
+
     parsed_message = _parse_message(message)
 
     new_bet = Bet(agency=parsed_message[BET_CLIENT_AGENCY_MSG_POS],
@@ -35,6 +42,9 @@ def _parse_message(message: str):
     message = message.removeprefix(ADD_BET_HEADER)
     split_message = message.split(',')
     return split_message
+
+
+## Bytes management from input/output
 
 # Reads message according to protocol defined on Readme.
 def read_message(rx_socket):
