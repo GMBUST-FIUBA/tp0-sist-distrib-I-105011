@@ -9,6 +9,8 @@ import (
 
 const ADD_BET_MSG_HEADER = "ADD "
 
+const TOTAL_MSG_HEADER_BYTES = 2
+
 func SendBet(socket net.Conn, bet Bet, agency_number uint) error {
 	// Create content
 	var content []byte
@@ -44,8 +46,6 @@ func SendBytes(socket net.Conn, bytes_to_send []byte) error {
 
 	return nil
 }
-
-const TOTAL_MSG_HEADER_BYTES = 2
 
 // Reads response from server
 func ReadServerResponse(socket net.Conn) error {
