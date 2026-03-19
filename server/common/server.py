@@ -53,9 +53,9 @@ class Server:
                 break
 
             # Process bet
+            message = OK_MESSAGE
             try:
                 self._bet_manager.store_bets_in_database(new_bet)
-                message = OK_MESSAGE
             except errors.NotAdultClientException as e:
                 message = str(e)
             except errors.AlreadyUsedNumberException as e:
@@ -68,8 +68,7 @@ class Server:
                 message = str(e)
 
             # Answer client
-            send_message()
-
+            send_message(message)
 
         try:
             # TODO: Modify the receive to avoid short-reads
