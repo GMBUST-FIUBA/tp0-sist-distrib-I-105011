@@ -1,3 +1,5 @@
+from bet_management import BetManager
+
 import socket
 import logging
 import signal
@@ -12,6 +14,9 @@ class Server:
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_socket.bind(('', port))
         self._server_socket.listen(listen_backlog)
+
+        # Initialize bet manager
+        self._bet_manager = BetManager()
 
         # Initialize server's shutdown mechanism
         signal.signal(signal.SIGTERM, self.__shut_down_server)
