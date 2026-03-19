@@ -1,8 +1,6 @@
 package common
 
 import (
-	"bufio"
-	"fmt"
 	"net"
 	"os"
 	"os/signal"
@@ -61,7 +59,7 @@ func (c *Client) createClientSocket() error {
 // StartClientLoop Send messages to the client until some time threshold is met
 func (c *Client) StartClientLoop(bets []Bet) {
 	// The client sends bets according to the position in the environment file
-	for msgID := 1; msgID <= c.config.LoopAmount; msgID++ {
+	for _, bet := range bets {
 		// Create the connection the server in every loop iteration. Send an
 		select {
 		case <-c.sigterm_channel:
@@ -71,32 +69,37 @@ func (c *Client) StartClientLoop(bets []Bet) {
 			c.createClientSocket()
 		}
 
-		// TODO: Modify the send to avoid short-write
-		fmt.Fprintf(
-			c.conn,
-			"[CLIENT %v] Message N°%v\n",
-			c.config.ID,
-			msgID,
-		)
-		msg, err := bufio.NewReader(c.conn).ReadString('\n')
+		// Send bet
+		err := SendBet(c.conn, bet, c.agency_number)
+		if err != nil {
+			log.Errorf("action: apuesta_enviada | result: failure | dni: %v | numero: %v | error: %v",
+				bet.document,
+				bet.number,
+				err,
+			)
+			c.conn.Close()
+			break
+		}
+
+		// Receive response
+		err = ReadServerResponse(c.conn)
 		c.conn.Close()
 
 		if err != nil {
-			log.Errorf("action: receive_message | result: fail | client_id: %v | error: %v",
-				c.config.ID,
+			log.Errorf("action: apuesta_enviada | result: failure | dni: %v | numero: %v | error: %v",
+				bet.document,
+				bet.number,
 				err,
 			)
-			return
+			break
 		}
 
-		log.Infof("action: receive_message | result: success | client_id: %v | msg: %v",
-			c.config.ID,
-			msg,
+		log.Infof("action: apuesta_enviada | result: success | dni: %v | numero: %v",
+			bet.document,
+			bet.number,
 		)
 
 		// Wait a time between sending one message and the next one
 		time.Sleep(c.config.LoopPeriod)
-
 	}
-	log.Infof("action: loop_finished | result: success | client_id: %v", c.config.ID)
 }
