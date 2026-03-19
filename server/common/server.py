@@ -56,31 +56,26 @@ class Server:
             message = OK_MESSAGE
             try:
                 self._bet_manager.store_bets_in_database(new_bet)
+                logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
             except errors.NotAdultClientException as e:
                 message = str(e)
+                logging.error("action: apuesta_almacenada | result: fail | error: {e}")
             except errors.AlreadyUsedNumberException as e:
                 message = str(e)
+                logging.error("action: apuesta_almacenada | result: fail | error: {e}")
             except errors.NotValidBetNumberException as e:
                 message = str(e)
+                logging.error("action: apuesta_almacenada | result: fail | error: {e}")
             except errors.NotValidDocumentException as e:
                 message = str(e)
+                logging.error("action: apuesta_almacenada | result: fail | error: {e}")
             except errors.RepeatedBetException as e:
                 message = str(e)
+                logging.error("action: apuesta_almacenada | result: fail | error: {e}")
 
             # Answer client
             send_message(message)
 
-        try:
-            # TODO: Modify the receive to avoid short-reads
-            msg = client_sock.recv(1024).rstrip().decode('utf-8')
-            addr = client_sock.getpeername()
-            logging.info(f'action: receive_message | result: success | ip: {addr[0]} | msg: {msg}')
-            # TODO: Modify the send to avoid short-writes
-            client_sock.send("{}\n".format(msg).encode('utf-8'))
-        except OSError as e:
-            logging.error("action: receive_message | result: fail | error: {e}")
-        finally:
-            client_sock.close()
 
     def __accept_new_connection(self):
         """
