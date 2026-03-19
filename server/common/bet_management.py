@@ -1,7 +1,6 @@
 from datetime import datetime, date
-from utils import Bet
-
-import errors
+from .utils import Bet
+from . import errors
 
 # Birthday format
 STRING_BIRTHDAY_FORMAT = '%Y-%m-%d'

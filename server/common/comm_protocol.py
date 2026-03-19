@@ -1,7 +1,6 @@
-from utils import Bet
+from .utils import Bet
 
-import comm_protocol
-import errors
+from . import comm_protocol
 
 # Total message length in bytes
 TOTAL_MESSAGE_SIZE_BYTES = 2

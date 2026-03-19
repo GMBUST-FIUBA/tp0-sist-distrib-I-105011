@@ -29,13 +29,6 @@ func InitConfig() (*viper.Viper, error) {
 
 	v.AutomaticEnv()
 
-	// Configure viper to read bets from env file
-	v.SetConfigFile(STORED_BETS_FILE_PATH)
-	v.SetConfigType("env")
-	if err := v.ReadInConfig(); err != nil {
-		fmt.Printf("Configuration could find environment file")
-	}
-
 	// Configure viper to read env variables with the CLI_ prefix
 	v.SetEnvPrefix("cli")
 	// Use a replacer to replace env variables underscores with points. This let us
@@ -58,6 +51,14 @@ func InitConfig() (*viper.Viper, error) {
 	if err := v.ReadInConfig(); err != nil {
 		fmt.Printf("Configuration could not be read from config file. Using env variables instead")
 	}
+
+	// Configure viper to read bets from env file
+	v.SetConfigFile(STORED_BETS_FILE_PATH)
+	v.SetConfigType("env")
+	if err := v.ReadInConfig(); err != nil {
+		fmt.Printf("Configuration could find environment file")
+	}
+
 
 	// Parse time.Duration variables and return an error if those variables cannot be parsed
 
@@ -118,7 +119,7 @@ func ReadOrderedBets(v *viper.Viper) []common.Bet {
 	// Get bets from env file
 	var stored_bets_env_file []string
 	for _, key := range bets_keys {
-		stored_bets_env_file = append(stored_bets_env_file, viper.GetString(key))
+		stored_bets_env_file = append(stored_bets_env_file, v.GetString(key))
 	}
 
 	// Create bet structures

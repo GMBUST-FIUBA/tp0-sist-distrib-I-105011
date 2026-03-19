@@ -1,7 +1,6 @@
-from bet_management import BetManager
-from comm_protocol import read_new_bet, send_message, OK_MESSAGE
+from .bet_management import BetManager
+from .comm_protocol import read_new_bet, send_message, OK_MESSAGE
 
-import errors
 import socket
 import logging
 import signal
