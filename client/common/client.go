@@ -24,6 +24,7 @@ type ClientConfig struct {
 
 // Client Entity that encapsulates how
 type Client struct {
+	agency_number	uint
 	config ClientConfig
 	conn   net.Conn
 	sigterm_channel	chan	os.Signal
@@ -31,8 +32,9 @@ type Client struct {
 
 // NewClient Initializes a new client receiving the configuration
 // as a parameter
-func NewClient(config ClientConfig) *Client {
+func NewClient(agency_number uint, config ClientConfig) *Client {
 	client := &Client{
+		agency_number: agency_number,
 		config: config,
 		sigterm_channel: make(chan os.Signal, 1),
 	}

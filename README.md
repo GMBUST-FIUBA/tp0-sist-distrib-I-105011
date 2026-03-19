@@ -188,7 +188,7 @@ Se deberá implementar un módulo de comunicación entre el cliente y el servido
 #### Resolución de ejercicio 5
 
 ##### Variables de entorno
-En primer lugar se utilizaron variables de entorno para poder insertar las apuestas. Cada local de lotería posee un identificador numérico único (que se denotará como AGENCIA de ahora en más) que se agrega como variable de entorno usando la variable `AGENCY=${AGENCY_NUMBER}`. La estructura de la variable que contiene la información del cliente y su apuesta es la siguiente (siendo *N* un número natural): `BET{N}=${NOMBRE},${APELLIDO},${DOCUMENTO},${NACIMIENTO},${NUMERO}`.
+En primer lugar se utilizaron variables de entorno para poder insertar las apuestas. Cada local de lotería posee un identificador numérico único (que se denotará como AGENCIA de ahora en más) que se agrega como variable de entorno usando la variable `AGENCY=${AGENCY_NUMBER}`. La estructura de la variable que contiene la información del cliente y su apuesta es la siguiente (siendo *N* un número natural): `BET${N}=${NOMBRE},${APELLIDO},${DOCUMENTO},${NACIMIENTO},${NUMERO}`.
 
 Donde:
 - NOMBRE: Es el nombre (o nombres) de la persona.

@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -100,6 +102,35 @@ func PrintConfig(v *viper.Viper) {
 	)
 }
 
+// Read bets from environment variables
+func ReadOrderedBets(v *viper.Viper) []common.Bet {
+	// Get all bets keys from env file
+	var bets_keys []string
+	for _, key := range v.AllKeys() {
+        if strings.HasPrefix(key, "bet") {
+            bets_keys = append(bets_keys, key)
+        }
+    }
+
+	// Sort bets
+	sort.Strings(bets_keys)
+
+	// Get bets from env file
+	var stored_bets_env_file []string
+	for _, key := range bets_keys {
+		stored_bets_env_file = append(stored_bets_env_file, viper.GetString(key))
+	}
+
+	// Create bet structures
+	var bets []common.Bet
+	for _, stored_bet_str := range stored_bets_env_file {
+		new_bet := common.CreateBetFromEnvFileString(stored_bet_str)
+		bets = append(bets, new_bet)
+	}
+
+	return bets
+}
+
 func main() {
 	v, err := InitConfig()
 	if err != nil {
@@ -120,6 +151,13 @@ func main() {
 		LoopPeriod:    v.GetDuration("loop.period"),
 	}
 
-	client := common.NewClient(clientConfig)
+	// Read agency ID
+	agency_number_str,_ := strconv.Atoi(v.GetString("agency"))
+	agency_number := uint(agency_number_str)
+
+	// Read and order bets
+	bets = ReadOrderedBets(v)
+
+	client := common.NewClient(agency_number, clientConfig)
 	client.StartClientLoop()
 }
