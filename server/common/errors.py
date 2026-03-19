@@ -4,22 +4,22 @@ REPEATED_BET_MSG = "ERR REPEATED_BET"
 NOT_VALID_NUMBER_MSG = "ERR NOT_VALID_NUMBER"
 NOT_VALID_DOC_MSG = "ERR NOT_VALID_DNI"
 
-class NotAdultClientException:
+class NotAdultClientException(Exception):
     def __init__(self, message=NOT_ADULT_CLIENT_MSG, *args, **kwargs):
         super().__init__(message, *args, **kwargs)
 
-class AlreadyUsedNumberException:
+class AlreadyUsedNumberException(Exception):
     def __init__(self, message=NUMBER_ALREADY_TAKEN_MSG, *args, **kwargs):
         super().__init__(message, *args, **kwargs)
 
-class RepeatedBetException:
+class RepeatedBetException(Exception):
     def __init__(self, message=REPEATED_BET_MSG, *args, **kwargs):
         super().__init__(message, *args, **kwargs)
 
-class NotValidBetNumberException:
+class NotValidBetNumberException(Exception):
     def __init__(self, message=NOT_VALID_NUMBER_MSG, *args, **kwargs):
         super().__init__(message, *args, **kwargs)
 
-class NotValidDocumentException:
+class NotValidDocumentException(Exception):
     def __init__(self, message=NOT_VALID_DOC_MSG, *args, **kwargs):
         super().__init__(message, *args, **kwargs)
