@@ -17,7 +17,7 @@ import (
 
 var log = logging.MustGetLogger("log")
 
-const STORED_BETS_FILE_PATH = "./data/test_client_bet.env"
+const STORED_BETS_FILE_PATH = "data/test_client_bet.env"
 
 // InitConfig Function that uses viper library to parse configuration parameters.
 // Viper is configured to read variables from both environment variables and the
@@ -27,9 +27,8 @@ const STORED_BETS_FILE_PATH = "./data/test_client_bet.env"
 func InitConfig() (*viper.Viper, error) {
 	v := viper.New()
 
-	v.AutomaticEnv()
-
 	// Configure viper to read env variables with the CLI_ prefix
+	v.AutomaticEnv()
 	v.SetEnvPrefix("cli")
 	// Use a replacer to replace env variables underscores with points. This let us
 	// use nested configurations in the config file and at the same time define
@@ -42,6 +41,7 @@ func InitConfig() (*viper.Viper, error) {
 	v.BindEnv("loop", "period")
 	v.BindEnv("loop", "amount")
 	v.BindEnv("log", "level")
+	v.BindEnv("bet")
 
 	// Try to read configuration from config file. If config file
 	// does not exists then ReadInConfig will fail but configuration
@@ -51,14 +51,6 @@ func InitConfig() (*viper.Viper, error) {
 	if err := v.ReadInConfig(); err != nil {
 		fmt.Printf("Configuration could not be read from config file. Using env variables instead")
 	}
-
-	// Configure viper to read bets from env file
-	v.SetConfigFile(STORED_BETS_FILE_PATH)
-	v.SetConfigType("env")
-	if err := v.ReadInConfig(); err != nil {
-		fmt.Printf("Configuration could find environment file")
-	}
-
 
 	// Parse time.Duration variables and return an error if those variables cannot be parsed
 
@@ -155,6 +147,8 @@ func main() {
 	// Read agency ID
 	agency_number_str,_ := strconv.Atoi(v.GetString("agency"))
 	agency_number := uint(agency_number_str)
+
+	fmt.Println("Env variables: ", v.AllKeys())
 
 	// Read and order bets
 	bets := ReadOrderedBets(v)

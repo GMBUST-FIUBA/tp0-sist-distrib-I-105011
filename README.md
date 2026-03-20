@@ -197,7 +197,7 @@ Donde:
 - NACIMIENTO: Fecha de nacimiento en el formato YYYY-MM-DD (año, mes y día).
 - NUMERO: Número por el cual se hace la apuesta.
 
-La utilización del identificador *BET{N}* (siendo *N* un número natural) es para poder identificar una apuesta de entre todas las que se realizan. Notar que es posible entonces que se hagan apuestas duplicadas, pero como se mostrará más adelante es un error contemplado por el protocolo.
+La utilización del identificador *BET* es para poder identificar una apuesta.
 
 ##### Protocolo de comunicación
 Las comunicaciones se realizarán utilizando TCP pero también es necesario implementar un protocolo de mayor nivel para poder almacenar las apuestas realizadas.
