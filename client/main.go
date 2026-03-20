@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -41,7 +40,8 @@ func InitConfig() (*viper.Viper, error) {
 	v.BindEnv("loop", "period")
 	v.BindEnv("loop", "amount")
 	v.BindEnv("log", "level")
-	v.BindEnv("bet")
+	v.BindEnv("bet", "BET")
+	v.BindEnv("agency", "AGENCY")
 
 	// Try to read configuration from config file. If config file
 	// does not exists then ReadInConfig will fail but configuration
@@ -96,31 +96,14 @@ func PrintConfig(v *viper.Viper) {
 }
 
 // Read bets from environment variables
-func ReadOrderedBets(v *viper.Viper) []common.Bet {
+func GetBets(v *viper.Viper) []common.Bet {
 	// Get all bets keys from env file
-	var bets_keys []string
-	for _, key := range v.AllKeys() {
-        if strings.HasPrefix(key, "bet") {
-            bets_keys = append(bets_keys, key)
-        }
-    }
+	stored_bet_env_file := v.GetString("bet")
 
-	// Sort bets
-	sort.Strings(bets_keys)
-
-	// Get bets from env file
-	var stored_bets_env_file []string
-	for _, key := range bets_keys {
-		stored_bets_env_file = append(stored_bets_env_file, v.GetString(key))
-	}
-
-	// Create bet structures
+	// Create bet structure
 	var bets []common.Bet
-	for _, stored_bet_str := range stored_bets_env_file {
-		new_bet := common.CreateBetFromEnvFileString(stored_bet_str)
-		bets = append(bets, new_bet)
-	}
-
+	new_bet := common.CreateBetFromEnvFileString(stored_bet_env_file)
+	bets = append(bets, new_bet)
 	return bets
 }
 
@@ -148,10 +131,8 @@ func main() {
 	agency_number_str,_ := strconv.Atoi(v.GetString("agency"))
 	agency_number := uint(agency_number_str)
 
-	fmt.Println("Env variables: ", v.AllKeys())
-
 	// Read and order bets
-	bets := ReadOrderedBets(v)
+	bets := GetBets(v)
 
 	client := common.NewClient(agency_number, clientConfig)
 	client.StartClientLoop(bets)
