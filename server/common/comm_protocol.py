@@ -51,10 +51,14 @@ def _parse_message(message: str):
 def read_message(rx_socket):
     # Reads header for message size
     message_size = _read_message_header(rx_socket)
+    if message_size is None:
+        return None
 
     # Reads message's content
     message = _read_message_content(rx_socket, message_size)
-    
+    if message is None:
+        return None
+
     return message
 
 # Reads header of message, which is the byte length of the message
