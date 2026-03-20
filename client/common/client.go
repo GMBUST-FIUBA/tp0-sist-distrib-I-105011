@@ -58,7 +58,8 @@ func (c *Client) createClientSocket() error {
 
 // StartClientLoop Send messages to the client until some time threshold is met
 func (c *Client) StartClientLoop(bets []Bet) {
-	// The client sends bets according to the position in the environment file
+	// Send bets
+	c.createClientSocket()
 	for _, bet := range bets {
 		// Create the connection the server in every loop iteration. Send an
 		select {
@@ -66,24 +67,21 @@ func (c *Client) StartClientLoop(bets []Bet) {
 			log.Infof("action: client_shutdown | result: success | client_id: %v", c.config.ID)
 			return
 		default:
-			c.createClientSocket()
-		}
-
-		// Send bet
-		err := SendBet(c.conn, bet, c.agency_number)
-		if err != nil {
-			log.Errorf("action: apuesta_enviada | result: failure | dni: %v | numero: %v | error: %v",
-				bet.document,
-				bet.number,
-				err,
-			)
-			c.conn.Close()
-			break
+			// Send bet
+			err := SendBet(c.conn, bet, c.agency_number)
+			if err != nil {
+				log.Errorf("action: apuesta_enviada | result: failure | dni: %v | numero: %v | error: %v",
+					bet.document,
+					bet.number,
+					err,
+				)
+				break
+			}
+			
 		}
 
 		// Receive response
-		err = ReadServerResponse(c.conn)
-		c.conn.Close()
+		err := ReadServerResponse(c.conn)
 
 		if err != nil {
 			log.Errorf("action: apuesta_enviada | result: failure | dni: %v | numero: %v | error: %v",
@@ -102,4 +100,5 @@ func (c *Client) StartClientLoop(bets []Bet) {
 		// Wait a time between sending one message and the next one
 		time.Sleep(c.config.LoopPeriod)
 	}
+	c.conn.Close()
 }
