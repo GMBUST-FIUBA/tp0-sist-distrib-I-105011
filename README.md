@@ -197,7 +197,7 @@ Donde:
 - NACIMIENTO: Fecha de nacimiento en el formato YYYY-MM-DD (año, mes y día).
 - NUMERO: Número por el cual se hace la apuesta.
 
-La utilización del identificador *BET* es para poder identificar una apuesta.
+La utilización del identificador *BET* es para poder identificar una apuesta. El ejercicio incluye una apuesta en la carpeta `/client/data/test_client_bet.env` para la correcta ejecución del código.
 
 ##### Protocolo de comunicación
 Las comunicaciones se realizarán utilizando TCP pero también es necesario implementar un protocolo de mayor nivel para poder almacenar las apuestas realizadas.
