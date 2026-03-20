@@ -18,13 +18,11 @@ class BetManager:
 
     def store_bets_in_database(self, new_bet: Bet):
         # Check document number
-        if new_bet.document <= 0:
+        if int(new_bet.document) <= 0:
             raise errors.NotValidDocumentException()
         
         # Check client age
-        birthday_date = datetime.strptime(new_bet.birthdate, STRING_BIRTHDAY_FORMAT)
-
-        if is_adult(birthday_date) == False:
+        if is_adult(new_bet.birthdate) == False:
             raise errors.NotAdultClientException()
 
         # Check number selected

@@ -75,7 +75,7 @@ def _read_message_content(rx_socket, size):
 def __read_n_bytes(rx_socket, n_bytes):
     data = bytearray()
     remaining_bytes = n_bytes
-    while n_bytes > 0:
+    while remaining_bytes > 0:
         rx_data = rx_socket.recv(remaining_bytes)
         if not rx_data:
             return None

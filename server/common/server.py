@@ -43,25 +43,24 @@ class Server:
         If a problem arises in the communication with the client, the
         client socket will also be closed
         """
-        while True:
-            new_bet = read_new_bet(client_sock)
+        new_bet = read_new_bet(client_sock)
 
-            # If client closes the connection
-            if new_bet is None:
-                client_sock.close()
-                break
+        # If client closes the connection
+        if new_bet is None:
+            client_sock.close()
+            return
 
-            # Process bet
-            message = OK_MESSAGE
-            try:
-                self._bet_manager.store_bets_in_database(new_bet)
-                logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
-            except Exception as e:
-                message = str(e)
-                logging.error("action: apuesta_almacenada | result: fail | error: {e}")
+        # Process bet
+        message = OK_MESSAGE
+        try:
+            self._bet_manager.store_bets_in_database(new_bet)
+            logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
+        except Exception as e:
+            message = str(e)
+            logging.error(f"action: apuesta_almacenada | result: fail | error: {e}")
 
-            # Answer client
-            send_message(message)
+        # Answer client
+        send_message(client_sock, message)
 
 
     def __accept_new_connection(self):
