@@ -8,9 +8,9 @@ import (
 type Bet struct {
 	first_name	string
 	last_name	string
-	document	uint
+	document	int
 	birthday	string
-	number		uint
+	number		int
 }
 
 func (b *Bet) TurnToBytes(agency_number uint) []byte {
@@ -22,13 +22,13 @@ func (b *Bet) TurnToBytes(agency_number uint) []byte {
 	byte_array_bet.WriteString(SEPARATOR)
 	byte_array_bet.WriteString(b.last_name)
 	byte_array_bet.WriteString(SEPARATOR)
-	byte_array_bet.WriteString(strconv.FormatUint(uint64(b.document), 10))
+	byte_array_bet.WriteString(strconv.FormatInt(int64(b.document), 10))
 	byte_array_bet.WriteString(SEPARATOR)
 	byte_array_bet.WriteString(b.birthday)
 	byte_array_bet.WriteString(SEPARATOR)
 	byte_array_bet.WriteString(strconv.FormatUint(uint64(agency_number), 10))
 	byte_array_bet.WriteString(SEPARATOR)
-	byte_array_bet.WriteString(strconv.FormatUint(uint64(b.number), 10))
+	byte_array_bet.WriteString(strconv.FormatInt(int64(b.number), 10))
 
 	return []byte(byte_array_bet.String())
 }
@@ -48,8 +48,8 @@ func CreateBetFromEnvFileString(stored_bet string) Bet {
 	return Bet{
 		first_name: split_stored_bet[FIRST_NAME_ENV_FILE_ROW_POS],
 		last_name: split_stored_bet[LAST_NAME_ENV_FILE_ROW_POS],
-		document: uint(document),
+		document: document,
 		birthday: split_stored_bet[BIRTHDAY_ENV_FILE_ROW_POS],
-		number: uint(number),
+		number: number,
 	}
 }
