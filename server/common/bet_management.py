@@ -52,7 +52,7 @@ class BetManager:
             raise errors.NotAdultClientException()
 
         # Check number selected
-        if new_bet.number <= 0:
+        if new_bet.number < 0:
             raise errors.NotValidBetNumberException()
 
         # Store bet in manager and database
