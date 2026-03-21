@@ -43,6 +43,13 @@ func InitConfig() (*viper.Viper, error) {
 	v.BindEnv("bet", "BET")
 	v.BindEnv("agency", "AGENCY")
 
+	// Env variables of bet
+	v.BindEnv("first_name", "NOMBRE")
+	v.BindEnv("last_name", "APELLIDO")
+	v.BindEnv("document", "DOCUMENTO")
+	v.BindEnv("birthday", "NACIMIENTO")
+	v.BindEnv("number", "NUMERO")
+
 	// Try to read configuration from config file. If config file
 	// does not exists then ReadInConfig will fail but configuration
 	// can be loaded from the environment variables so we shouldn't
@@ -97,11 +104,8 @@ func PrintConfig(v *viper.Viper) {
 
 // Read bets from environment variables
 func GetBet(v *viper.Viper) common.Bet {
-	// Get all bets keys from env file
-	stored_bet_env_file := v.GetString("bet")
-
 	// Create bet structure
-	new_bet := common.CreateBetFromEnvFileString(stored_bet_env_file)
+	new_bet := common.CreateBetFromEnvFile(v)
 	return new_bet
 }
 

@@ -13,6 +13,7 @@ CLIENT_NAME_START = "client"
 ENVIRONMENT_DOCKER_COMPOSE_TAG = "environment"
 ENVIRONMENT_FILE_DOCKER_COMPOSE_TAG = "env_file"
 CLIENT_CLI_ID_DOCKER_COMPOSE_TAG = "CLI_ID="
+AGENCY_NUMBER_DOCKER_COMPOSE_TAG = "AGENCY="
 
 def generate_services(total_clients):
     server = _generate_server()
@@ -32,11 +33,14 @@ def _generate_clients(total_clients):
         # Change client name
         current_client_elems[CONTAINER_NAME_DOCKER_COMPOSE_TAG] += str(current_client_id)
 
-        # Set client ID
+        # Set client ID and agency number
         current_client_cli_id = CLIENT_CLI_ID_DOCKER_COMPOSE_TAG + str(current_client_id)
+        current_client_agency_number = AGENCY_NUMBER_DOCKER_COMPOSE_TAG + str(current_client_id)
+
         if ENVIRONMENT_DOCKER_COMPOSE_TAG not in current_client_elems:
             current_client_elems[ENVIRONMENT_DOCKER_COMPOSE_TAG] = []
         current_client_elems[ENVIRONMENT_DOCKER_COMPOSE_TAG].append(current_client_cli_id)
+        current_client_elems[ENVIRONMENT_DOCKER_COMPOSE_TAG].append(current_client_agency_number)
 
         # Set environment file
         current_client_elems[ENVIRONMENT_FILE_DOCKER_COMPOSE_TAG] = ENV_FILE_PATH

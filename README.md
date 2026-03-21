@@ -188,16 +188,7 @@ Se deberá implementar un módulo de comunicación entre el cliente y el servido
 #### Resolución de ejercicio 5
 
 ##### Variables de entorno
-En primer lugar se utilizaron variables de entorno para poder insertar las apuestas. Cada local de lotería posee un identificador numérico único (que se denotará como AGENCIA de ahora en más) que se agrega como variable de entorno usando la variable `AGENCY=${AGENCY_NUMBER}`. La estructura de la variable que contiene la información del cliente y su apuesta es la siguiente (siendo *N* un número natural): `BET${N}=${NOMBRE},${APELLIDO},${DOCUMENTO},${NACIMIENTO},${NUMERO}`.
-
-Donde:
-- NOMBRE: Es el nombre (o nombres) de la persona.
-- APELLIDO: Es el apellido (o apellidos) de la persona.
-- DOCUMENTO: Número de documento.
-- NACIMIENTO: Fecha de nacimiento en el formato YYYY-MM-DD (año, mes y día).
-- NUMERO: Número por el cual se hace la apuesta.
-
-La utilización del identificador *BET* es para poder identificar una apuesta. El ejercicio incluye una apuesta en la carpeta `/client/data/test_client_bet.env` para la correcta ejecución del código.
+En primer lugar se utilizaron variables de entorno para poder insertar las apuestas. Cada local de lotería posee un identificador numérico único (que se denotará como AGENCIA de ahora en más) que se agrega como variable de entorno usando la variable `AGENCY=${AGENCY_NUMBER}`. El ejercicio incluye una apuesta en la carpeta `/client/data/test_client_bet.env` para la correcta ejecución del código.
 
 ##### Protocolo de comunicación
 Las comunicaciones se realizarán utilizando TCP pero también es necesario implementar un protocolo de mayor nivel para poder almacenar las apuestas realizadas.
