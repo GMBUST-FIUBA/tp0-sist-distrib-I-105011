@@ -6,12 +6,16 @@ import yaml
 BASE_CLIENT_FILE_PATH = "./compose-file-generator/services/base_client_config.yaml"
 SERVER_FILE_PATH = "./compose-file-generator/services/server_config.yaml"
 ENV_FILE_PATH = "./client/data/test_client_bet.env"
+BASE_BETS_FILE_PATH = "./.data/"
+BASE_BETS_FILE_NAME = "agency-"
+BASE_BETS_FILE_TYPE = ".csv"
 
 SERVICES_DOCKER_COMPOSE_TAG = "services"
 CONTAINER_NAME_DOCKER_COMPOSE_TAG = "container_name"
 CLIENT_NAME_START = "client"
 ENVIRONMENT_DOCKER_COMPOSE_TAG = "environment"
 ENVIRONMENT_FILE_DOCKER_COMPOSE_TAG = "env_file"
+VOLUMES_DOCKER_COMPOSE_TAG = "volumes"
 CLIENT_CLI_ID_DOCKER_COMPOSE_TAG = "CLI_ID="
 AGENCY_NUMBER_DOCKER_COMPOSE_TAG = "AGENCY="
 
@@ -48,6 +52,13 @@ def _generate_clients(total_clients):
         # Store new client
         clients[current_client_elems[CONTAINER_NAME_DOCKER_COMPOSE_TAG]] = current_client_elems
 
+        # Set volumes files
+        if VOLUMES_DOCKER_COMPOSE_TAG not in current_client_elems:
+            current_client_elems[VOLUMES_DOCKER_COMPOSE_TAG] = []
+
+        # Add bets files
+        current_bets_file_path = BASE_BETS_FILE_PATH + BASE_BETS_FILE_NAME + str(current_client_id) + BASE_BETS_FILE_TYPE
+        current_client_elems[VOLUMES_DOCKER_COMPOSE_TAG].append(current_bets_file_path)
 
     return clients
 
