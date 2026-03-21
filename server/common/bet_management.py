@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from .utils import Bet
+from .utils import Bet, store_bets
 from . import errors
 
 # Birthday format
@@ -36,6 +36,7 @@ class BetManager:
                 self.stored_bets[new_bet.document] = {}
             
             self.stored_bets[new_bet.document][new_bet.number] = new_bet
+            store_bets([new_bet])
 
         elif new_bet.document in self.stored_bets:
             # Raise exception depending if the client already used the number or not
