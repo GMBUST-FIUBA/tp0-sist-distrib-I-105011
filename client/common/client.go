@@ -112,9 +112,8 @@ func (c *Client) StartClientLoop() {
 		// Send bets batch
 		err = SendBetsBatch(c.conn, next_batch, c.agency_number)
 		if err != nil {
-			log.Errorf("action: apuestas_enviadas | result: failure | cantidad: %v | error: %v",
+			log.Errorf("action: apuestas_enviadas | result: failure | cantidad: %v",
 				len(next_batch),
-				err,
 			)
 			break
 		}
