@@ -90,9 +90,10 @@ func (c *Client) createClientSocket() error {
 func (c *Client) StartClientLoop() {
 	// Send bets
 	c.createClientSocket()
+	continue_reading_batches := true
 
 	// Send all bets by batches
-	for {
+	for continue_reading_batches {
 		select {
 		case <-c.sigterm_channel:
 			log.Infof("action: client_shutdown | result: success | client_id: %v", c.config.ID)
@@ -103,7 +104,7 @@ func (c *Client) StartClientLoop() {
 
 		next_batch, err := c.readNextBetsBatch()
 		if err == io.EOF {
-			break
+			continue_reading_batches = false
 		} else if err != nil {
 			log.Errorf("action: lectura_batch | result: failure | error: %v",
 				err,
