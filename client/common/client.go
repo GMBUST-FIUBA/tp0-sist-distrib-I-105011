@@ -112,7 +112,7 @@ func (c *Client) StartClientLoop() {
 		// Send bets batch
 		err = SendBetsBatch(c.conn, next_batch, c.agency_number)
 		if err != nil {
-			log.Errorf("action: apuestas_enviadas | result: failure | cantidad: %v",
+			log.Errorf("action: apuestas_enviadas | result: fail | cantidad: %v",
 				len(next_batch),
 			)
 			break
@@ -121,7 +121,7 @@ func (c *Client) StartClientLoop() {
 		err = ReadServerResponse(c.conn)
 
 		if err != nil {
-			log.Errorf("action: apuestas_enviadas | result: failure | cantidad: %v",
+			log.Errorf("action: apuestas_enviadas | result: fail | cantidad: %v",
 				len(next_batch),
 			)
 			break
