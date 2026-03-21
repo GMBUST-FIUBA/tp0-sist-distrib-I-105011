@@ -57,6 +57,14 @@ def identify_command(message):
     if message_header not in command_header_to_enum:
         return None
 
+    parsed_message = _parse_message_single_bet(message)
+
+def identify_command(message):
+    message_header = message[0:4]
+
+    if message_header not in command_header_to_enum:
+        return None
+
     return command_header_to_enum[message_header]
 
 # Create new single bet
