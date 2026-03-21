@@ -121,7 +121,7 @@ func (c *Client) StartClientLoop() {
 		err = ReadServerResponse(c.conn)
 
 		if err != nil {
-			log.Errorf("action: apuestas_enviadas | result: failure | cantidad: %v | error: %v",
+			log.Errorf("action: apuestas_enviadas | result: failure | cantidad: %v",
 				len(next_batch),
 				err,
 			)
