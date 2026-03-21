@@ -102,4 +102,4 @@ class Server:
             new_bets = create_new_bets_batch(message)
             print(f"Numero de apuestas: {len(new_bets)}")
             self._bet_manager.store_bets_batch(new_bets)
-            logging.info(f'apuesta_recibida | result: success | cantidad: {len(new_bets)}')
+            logging.info(f'action: apuesta_recibida | result: success | cantidad: {len(new_bets)}')
