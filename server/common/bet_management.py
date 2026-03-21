@@ -76,6 +76,7 @@ class BetManager:
     def __store_staged_bets(self):
         # Store bets in memory
         all_staged_bets = [bet for bets_by_number in self.staged_bets.values() for bet in bets_by_number.values()]
+        print(f"Se van a almacenar {len(all_staged_bets)} apuestas")
         store_bets(all_staged_bets)
 
         # Store bets in manager
