@@ -123,7 +123,6 @@ func (c *Client) StartClientLoop() {
 		if err != nil {
 			log.Errorf("action: apuestas_enviadas | result: failure | cantidad: %v",
 				len(next_batch),
-				err,
 			)
 			break
 		}
