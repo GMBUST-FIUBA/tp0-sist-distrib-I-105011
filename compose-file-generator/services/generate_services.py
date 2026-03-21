@@ -9,6 +9,7 @@ ENV_FILE_PATH = "./client/data/test_client_bet.env"
 BASE_BETS_FILE_PATH = "./.data/"
 BASE_BETS_FILE_NAME = "agency-"
 BASE_BETS_FILE_TYPE = ".csv"
+BASE_BETS_CONTAINER_FILE_PATH = "/volumes/"
 
 SERVICES_DOCKER_COMPOSE_TAG = "services"
 CONTAINER_NAME_DOCKER_COMPOSE_TAG = "container_name"
@@ -57,8 +58,17 @@ def _generate_clients(total_clients):
             current_client_elems[VOLUMES_DOCKER_COMPOSE_TAG] = []
 
         # Add bets files
-        current_bets_file_path = BASE_BETS_FILE_PATH + BASE_BETS_FILE_NAME + str(current_client_id) + BASE_BETS_FILE_TYPE
-        current_client_elems[VOLUMES_DOCKER_COMPOSE_TAG].append(current_bets_file_path)
+        ## Bets file in project
+        current_bets_file_name = BASE_BETS_FILE_NAME + str(current_client_id) + BASE_BETS_FILE_TYPE
+        ## Bets file path in project
+        current_project_bets_file_path = BASE_BETS_FILE_PATH + current_bets_file_name
+
+        ## Bets file path in container
+        current_container_bets_file_path = BASE_BETS_CONTAINER_FILE_PATH + current_bets_file_name
+
+        ## Add volume list element
+        volumes_list_element_bets_file = current_project_bets_file_path + ":" + current_container_bets_file_path
+        current_client_elems[VOLUMES_DOCKER_COMPOSE_TAG].append(volumes_list_element_bets_file)
 
     return clients
 
