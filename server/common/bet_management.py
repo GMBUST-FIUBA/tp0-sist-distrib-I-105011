@@ -15,8 +15,6 @@ ADULT_MINIMUM_AGE = 18
 
 class BetManager:
     def __init__(self):
-        self.stored_bets = {}
-        self.numbers_used = set()
         self.staged_bets_numbers = set()
         self.staged_bets = {}
 
@@ -74,13 +72,6 @@ class BetManager:
         # Store bets in memory
         all_staged_bets = [bet for bets_by_number in self.staged_bets.values() for bet in bets_by_number.values()]
         store_bets(all_staged_bets)
-
-        # Store bets in manager
-        for new_bet in all_staged_bets:
-            self.numbers_used.add(new_bet.number)
-            if new_bet.document not in self.stored_bets:
-                self.stored_bets[new_bet.document] = {}
-            self.stored_bets[new_bet.document][new_bet.number] = new_bet
 
         # Erase staged bets
         self.__erase_staged_bets()
