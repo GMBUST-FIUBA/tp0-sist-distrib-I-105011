@@ -46,7 +46,7 @@ class BetManager:
 
     def __stage_bet(self, new_bet):
         # Check document number
-        if int(new_bet.document) <= 0:
+        if int(new_bet.document) < 0:
             raise errors.NotValidDocumentException()
         
         # Check client age
