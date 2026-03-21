@@ -96,15 +96,13 @@ func PrintConfig(v *viper.Viper) {
 }
 
 // Read bets from environment variables
-func GetBets(v *viper.Viper) []common.Bet {
+func GetBet(v *viper.Viper) common.Bet {
 	// Get all bets keys from env file
 	stored_bet_env_file := v.GetString("bet")
 
 	// Create bet structure
-	var bets []common.Bet
 	new_bet := common.CreateBetFromEnvFileString(stored_bet_env_file)
-	bets = append(bets, new_bet)
-	return bets
+	return new_bet
 }
 
 func main() {
@@ -131,9 +129,9 @@ func main() {
 	agency_number_str,_ := strconv.Atoi(v.GetString("agency"))
 	agency_number := uint(agency_number_str)
 
-	// Read and order bets
-	bets := GetBets(v)
+	// Read bet
+	bet := GetBet(v)
 
 	client := common.NewClient(agency_number, clientConfig)
-	client.StartClientLoop(bets)
+	client.StartClientLoop(bet)
 }
