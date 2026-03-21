@@ -23,3 +23,7 @@ class NotValidBetNumberException(Exception):
 class NotValidDocumentException(Exception):
     def __init__(self, message=NOT_VALID_DOC_MSG, *args, **kwargs):
         super().__init__(message, *args, **kwargs)
+
+class WrongBatchException(Exception):
+    def __init__(self, message, *args, **kwargs):
+        super().__init__(message, *args, **kwargs)

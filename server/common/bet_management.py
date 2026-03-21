@@ -2,6 +2,8 @@ from datetime import datetime, date
 from .utils import Bet, store_bets
 from . import errors
 
+import logging
+
 # Birthday format
 STRING_BIRTHDAY_FORMAT = '%Y-%m-%d'
 
@@ -15,8 +17,30 @@ class BetManager:
     def __init__(self):
         self.stored_bets = {}
         self.numbers_used = set()
+        self.staged_bets_numbers = set()
+        self.staged_bets = set()
 
-    def store_bets_in_database(self, new_bet: Bet):
+    # Store single bet
+    def store_bet_in_database(self, new_bet: Bet):
+        # Stage bet
+        self.__stage_bet(new_bet)
+        # Store bet
+        self.__store_staged_bets()
+
+    # Store batch of bets
+    def store_bets_batch(self, bets: list[Bet]):
+        # Stage all bets
+        for bet in bets:
+            try:
+                self.__stage_bet(bet)
+            except Exception as e:
+                self.__erase_staged_bets()
+                logging.error(f"apuesta_recibida | result: fail | cantidad: {len(bets)}")
+                raise errors.WrongBatchException(str(e))
+        # Store staged bets
+        self.__store_staged_bets()
+
+    def __stage_bet(self, new_bet):
         # Check document number
         if int(new_bet.document) <= 0:
             raise errors.NotValidDocumentException()
@@ -30,22 +54,38 @@ class BetManager:
             raise errors.NotValidBetNumberException()
 
         # Store bet in manager and database
-        if new_bet.number not in self.numbers_used:
+        if new_bet.number not in self.staged_bets_numbers:
 
-            if new_bet.document not in self.stored_bets:
-                self.stored_bets[new_bet.document] = {}
+            if new_bet.document not in self.staged_bets:
+                self.staged_bets[new_bet.document] = {}
             
-            self.stored_bets[new_bet.document][new_bet.number] = new_bet
-            store_bets([new_bet])
+            # Stage bets
+            self.staged_bets.add(new_bet)
+            self.staged_bets_numbers.add(new_bet.number)
 
-        elif new_bet.document in self.stored_bets:
+        elif new_bet.document in self.staged_bets:
             # Raise exception depending if the client already used the number or not
-            if new_bet.number in self.stored_bets[new_bet.document]:
+            if new_bet.number in self.staged_bets[new_bet.document]:
                 raise errors.RepeatedBetException()
             else:
                 raise errors.AlreadyUsedNumberException()
-            
+        pass
 
+    def __store_staged_bets(self):
+        # Store bets in memory
+        store_bets(self.staged_bets)
+
+        # Store bets in manager
+        for new_bet in self.staged_bets:
+            self.numbers_used.add(new_bet.number)
+            self.stored_bets[new_bet.document][new_bet.number] = new_bet
+
+        # Erase staged bets
+        self.__erase_staged_bets()
+
+    def __erase_staged_bets(self):
+        self.staged_bets_numbers = set()
+        self.staged_bets = set()
 
 
 MARCH_MONTH_NUMBER = 3

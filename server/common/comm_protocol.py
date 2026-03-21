@@ -79,7 +79,7 @@ def _parse_message_single_bet(message: str):
 
 # Create new bets batch
 def create_new_bets_batch(message):
-    total_bets, agency_number, parsed_message = _parse_message_bets_batch(message)
+    _, agency_number, parsed_message = _parse_message_bets_batch(message)
     new_bets = []
     for bet_contained in parsed_message:
         parsed_bet_contained = _parse_message_single_bet(bet_contained)
@@ -93,7 +93,7 @@ def create_new_bets_batch(message):
         
         new_bets.append(new_bet)
 
-    return total_bets, agency_number, new_bets
+    return new_bets
 
 def _parse_message_bets_batch(message: str):
     message = message.removeprefix(ADD_BETS_BATCH_HEADER)

@@ -1,5 +1,6 @@
 from .bet_management import BetManager
 from .comm_protocol import *
+from .errors import *
 
 import socket
 import logging
@@ -52,16 +53,17 @@ class Server:
                 return
 
             # Process bet
-            message = OK_MESSAGE
+            response = OK_MESSAGE
             try:
-                self._bet_manager.store_bets_in_database(new_bet)
-                logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
+                self.__process_message(new_message)
+            except WrongBatchException as e:
+                response = str(e)
             except Exception as e:
-                message = str(e)
+                response = str(e)
                 logging.error(f"action: apuesta_almacenada | result: fail | error: {e}")
 
             # Answer client
-            send_message(client_sock, message)
+            send_message(client_sock, response)
 
 
     def __accept_new_connection(self):
@@ -92,8 +94,9 @@ class Server:
         match command:
             case comm_protocol.Command.ADD_BET:
                 new_bet = create_new_bet(message)
-                self._bet_manager.store_bets_in_database(new_bet)
+                self._bet_manager.store_bet_in_database(new_bet)
+                logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
             case comm_protocol.Command.ADD_BATCH:
-                pass
-            case _:
-                pass
+                new_bets = create_new_bets_batch(message)
+                self._bet_manager.store_bets_batch(new_bets)
+                logging.info(f'apuesta_recibida | result: success | cantidad: {len(new_bets)}')
