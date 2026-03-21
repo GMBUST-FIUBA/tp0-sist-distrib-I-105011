@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
@@ -93,20 +92,14 @@ func InitLogger(logLevel string) error {
 // PrintConfig Print all the configuration parameters of the program.
 // For debugging purposes only
 func PrintConfig(v *viper.Viper) {
-	log.Infof("action: config | result: success | client_id: %s | server_address: %s | loop_amount: %v | loop_period: %v | log_level: %s",
+	log.Infof("action: config | result: success | client_id: %s | server_address: %s | loop_amount: %v | loop_period: %v | log_level: %s | batch_size: %s",
 		v.GetString("id"),
 		v.GetString("server.address"),
 		v.GetInt("loop.amount"),
 		v.GetDuration("loop.period"),
 		v.GetString("log.level"),
+		v.GetString("batch.maxAmount"),
 	)
-}
-
-// Read bets from environment variables
-func GetBet(v *viper.Viper) common.Bet {
-	// Create bet structure
-	new_bet := common.CreateBetFromEnvFile(v)
-	return new_bet
 }
 
 func main() {
@@ -127,15 +120,17 @@ func main() {
 		ID:            v.GetString("id"),
 		LoopAmount:    v.GetInt("loop.amount"),
 		LoopPeriod:    v.GetDuration("loop.period"),
+		BatchMaxSize:  v.GetUint("batch.maxAmount"),
 	}
 
 	// Read agency ID
-	agency_number_str,_ := strconv.Atoi(v.GetString("agency"))
-	agency_number := uint(agency_number_str)
+	agency_number := v.GetUint("agency")
 
-	// Read bet
-	bet := GetBet(v)
-
-	client := common.NewClient(agency_number, clientConfig)
-	client.StartClientLoop(bet)
+	// Start client
+	client, err := common.NewClient(agency_number, clientConfig)
+	if err != nil {
+		fmt.Println("Error: ", err)
+	} else {
+		client.StartClientLoop()
+	}
 }

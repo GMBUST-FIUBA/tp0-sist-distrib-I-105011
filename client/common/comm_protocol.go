@@ -31,9 +31,16 @@ const NOT_VALID_DOCUMENT_ERR_MSG = "NOT_VALID_DNI"
 
 // Add bet header message
 const ADD_BET_MSG_HEADER = "ADD "
+const ADD_BETS_BATCH_MSG_HEADER = "ADDB"
 
 // Header length in bytes
 const TOTAL_MSG_HEADER_BYTES = 2
+
+// Batch total bets length in bytes
+const TOTAL_BETS_BATCH_HEADER_BYTES = 1
+
+// Agency number in batch message in bytes
+const AGENCY_NUMBER_BATCH_HEADER_BYTES = 1
 
 // Send bet to server
 func SendBet(socket net.Conn, bet Bet, agency_number uint) error {
@@ -51,6 +58,43 @@ func SendBet(socket net.Conn, bet Bet, agency_number uint) error {
 	var message []byte
 	message = append(message, total_length_bytes...)
 	message = append(message, content...)
+
+	// Send bytes from socket
+	return SendBytes(socket, message)
+}
+
+// Send bets batch
+func SendBetsBatch(socket net.Conn, bets []Bet, agency_number uint) error {
+	// Create message content
+	var bets_to_bytes []byte
+	// Iterate over bets batch
+	for _, bet := range bets {
+		bets_to_bytes = append(bets_to_bytes, []byte(ADD_BET_MSG_HEADER)...)
+		serialized_bet := bet.TurnToBatchBytes(agency_number)
+		bets_to_bytes = append(bets_to_bytes, serialized_bet...)
+	}
+
+	// Get total bets in bytes
+	total_bets_bytes := byte(len(bets))
+
+	// Get agency number in bytes
+	agency_number_bytes := byte(agency_number)
+
+	// Create message content
+	message_content := []byte(ADD_BETS_BATCH_MSG_HEADER)
+
+	message_content = append(message_content, total_bets_bytes)
+	message_content = append(message_content, agency_number_bytes)
+	message_content = append(message_content, bets_to_bytes...)
+
+	// Calculate total message length
+	total_length_bytes := make([]byte, TOTAL_MSG_HEADER_BYTES)
+	binary.BigEndian.PutUint16(total_length_bytes, uint16(len(message_content)))
+
+	// Create new message
+	var message []byte
+	message = append(message, total_length_bytes...)
+	message = append(message, message_content...)
 
 	// Send bytes from socket
 	return SendBytes(socket, message)
