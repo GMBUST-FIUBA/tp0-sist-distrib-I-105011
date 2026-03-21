@@ -18,7 +18,7 @@ class BetManager:
         self.stored_bets = {}
         self.numbers_used = set()
         self.staged_bets_numbers = set()
-        self.staged_bets = set()
+        self.staged_bets = {}
 
     # Store single bet
     def store_bet_in_database(self, new_bet: Bet):
@@ -29,6 +29,7 @@ class BetManager:
 
     # Store batch of bets
     def store_bets_batch(self, bets: list[Bet]):
+        print("Start storing staged bets")
         # Stage all bets
         for bet in bets:
             try:
@@ -38,6 +39,7 @@ class BetManager:
                 logging.error(f"apuesta_recibida | result: fail | cantidad: {len(bets)}")
                 raise errors.WrongBatchException(str(e))
         # Store staged bets
+        print("Staged bets are stored")
         self.__store_staged_bets()
 
     def __stage_bet(self, new_bet):
@@ -58,9 +60,9 @@ class BetManager:
 
             if new_bet.document not in self.staged_bets:
                 self.staged_bets[new_bet.document] = {}
-            
+
             # Stage bets
-            self.staged_bets.add(new_bet)
+            self.staged_bets[new_bet.document][new_bet.number] = new_bet
             self.staged_bets_numbers.add(new_bet.number)
 
         elif new_bet.document in self.staged_bets:
@@ -73,19 +75,25 @@ class BetManager:
 
     def __store_staged_bets(self):
         # Store bets in memory
-        store_bets(self.staged_bets)
+        all_staged_bets = [bet for bets_by_number in self.staged_bets.values() for bet in bets_by_number.values()]
+        store_bets(all_staged_bets)
 
         # Store bets in manager
-        for new_bet in self.staged_bets:
+        for new_bet in all_staged_bets:
             self.numbers_used.add(new_bet.number)
+            if new_bet.document not in self.stored_bets:
+                self.stored_bets[new_bet.document] = {}
             self.stored_bets[new_bet.document][new_bet.number] = new_bet
+
+        print("Bets stored in manager")
 
         # Erase staged bets
         self.__erase_staged_bets()
+        print("Staged bets erased")
 
     def __erase_staged_bets(self):
         self.staged_bets_numbers = set()
-        self.staged_bets = set()
+        self.staged_bets = {}
 
 
 MARCH_MONTH_NUMBER = 3

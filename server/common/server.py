@@ -90,13 +90,15 @@ class Server:
         sys.exit(0)
 
     def __process_message(self, message):
+        
         command = comm_protocol.identify_command(message)
-        match command:
-            case comm_protocol.Command.ADD_BET:
-                new_bet = create_new_bet(message)
-                self._bet_manager.store_bet_in_database(new_bet)
-                logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
-            case comm_protocol.Command.ADD_BATCH:
-                new_bets = create_new_bets_batch(message)
-                self._bet_manager.store_bets_batch(new_bets)
-                logging.info(f'apuesta_recibida | result: success | cantidad: {len(new_bets)}')
+
+        # Check type
+        if command == comm_protocol.Command.ADD_BET:
+            new_bet = create_new_bet(message)
+            self._bet_manager.store_bet_in_database(new_bet)
+            logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
+        elif command == comm_protocol.Command.ADD_BATCH:
+            new_bets = create_new_bets_batch(message)
+            self._bet_manager.store_bets_batch(new_bets)
+            logging.info(f'apuesta_recibida | result: success | cantidad: {len(new_bets)}')

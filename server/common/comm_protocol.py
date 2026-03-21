@@ -52,7 +52,7 @@ def read_command(rx_socket):
     parsed_message = _parse_message_single_bet(message)
 
 def identify_command(message):
-    message_header = message[0:4]
+    message_header = message[0:4].decode("utf-8", errors="ignore")
 
     if message_header not in command_header_to_enum:
         return None
@@ -72,7 +72,8 @@ def create_new_bet(message):
 
     return new_bet
 
-def _parse_message_single_bet(message: str):
+def _parse_message_single_bet(message):
+    message = message.decode("utf-8", errors="ignore")
     message = message.removeprefix(ADD_BET_HEADER)
     split_message = message.split(',')
     return split_message
@@ -82,7 +83,7 @@ def create_new_bets_batch(message):
     _, agency_number, parsed_message = _parse_message_bets_batch(message)
     new_bets = []
     for bet_contained in parsed_message:
-        parsed_bet_contained = _parse_message_single_bet(bet_contained)
+        parsed_bet_contained = bet_contained.split(',')
 
         new_bet = Bet(agency=agency_number,
                     first_name=parsed_bet_contained[BATCH_BET_CLIENT_FIRST_NAME_MSG_POS],
@@ -95,10 +96,11 @@ def create_new_bets_batch(message):
 
     return new_bets
 
-def _parse_message_bets_batch(message: str):
-    message = message.removeprefix(ADD_BETS_BATCH_HEADER)
+def _parse_message_bets_batch(message):
+    message = message[4:]
     total_bets = message.pop(0)
     agency_number = message.pop(0)
+    message = message.decode("utf-8", errors="ignore")
     split_message = message.split(';')
     return total_bets, agency_number, split_message
 
@@ -131,7 +133,7 @@ def _read_message_content(rx_socket, size):
     content = __read_n_bytes(rx_socket, size)
     if content is None:
         return None
-    return content.decode("utf-8", errors="ignore")
+    return content
 
 # Returns None if sender disconnects
 def __read_n_bytes(rx_socket, n_bytes):

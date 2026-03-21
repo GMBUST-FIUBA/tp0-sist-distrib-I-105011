@@ -68,10 +68,13 @@ func SendBetsBatch(socket net.Conn, bets []Bet, agency_number uint) error {
 	// Create message content
 	var bets_to_bytes []byte
 	// Iterate over bets batch
-	for _, bet := range bets {
-		bets_to_bytes = append(bets_to_bytes, []byte(ADD_BET_MSG_HEADER)...)
+	bets_to_bytes = append(bets_to_bytes, []byte(ADD_BETS_BATCH_MSG_HEADER)...)
+	for pos, bet := range bets {
 		serialized_bet := bet.TurnToBatchBytes(agency_number)
 		bets_to_bytes = append(bets_to_bytes, serialized_bet...)
+		if pos + 1 < len(bets) {
+			bets_to_bytes = append(bets_to_bytes, ';')
+		}
 	}
 
 	// Get total bets in bytes
