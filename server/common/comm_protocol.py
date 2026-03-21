@@ -1,3 +1,5 @@
+from enum import Enum
+
 from .utils import Bet
 
 from . import comm_protocol
@@ -8,10 +10,13 @@ TOTAL_MESSAGE_SIZE_BYTES = 2
 # Add bet header
 ADD_BET_HEADER = "ADD "
 
+# Add batch of bets header
+ADD_BETS_BATCH_HEADER = "ADDB"
+
 # Correctly processed bet
 OK_MESSAGE = "OK"
 
-# Message parts positions
+# Add single bet message parts positions
 BET_CLIENT_FIRST_NAME_MSG_POS = 0
 BET_CLIENT_SURNAME_MSG_POS = 1
 BET_CLIENT_DOCUMENT_MSG_POS = 2
@@ -19,16 +24,44 @@ BET_CLIENT_BIRTHDAY_MSG_POS = 3
 BET_CLIENT_AGENCY_MSG_POS = 4
 BET_CLIENT_LOTTERY_NUMBER_MSG_POS = 5
 
+# Add bet from batch message parts positions
+BATCH_BET_CLIENT_FIRST_NAME_MSG_POS = 0
+BATCH_BET_CLIENT_SURNAME_MSG_POS = 1
+BATCH_BET_CLIENT_DOCUMENT_MSG_POS = 2
+BATCH_BET_CLIENT_BIRTHDAY_MSG_POS = 3
+BATCH_BET_CLIENT_LOTTERY_NUMBER_MSG_POS = 4
+
 ## Bets serialization and deserialization from protocol
 
-# Create new bet
-def read_new_bet(rx_socket):
+class Command(Enum):
+    ADD_BET = 1,
+    ADD_BATCH = 2
+
+command_header_to_enum = {
+    ADD_BET_HEADER: Command.ADD_BET,
+    ADD_BETS_BATCH_HEADER: Command.ADD_BATCH,
+}
+
+# Read command from socket
+def read_command(rx_socket):
     message = comm_protocol.read_message(rx_socket)
 
     if message is None:
         return None
 
-    parsed_message = _parse_message(message)
+    parsed_message = _parse_message_single_bet(message)
+
+def identify_command(message):
+    message_header = message[0:4]
+
+    if message_header not in command_header_to_enum:
+        return None
+
+    return command_header_to_enum[message_header]
+
+# Create new single bet
+def create_new_bet(message):
+    parsed_message = _parse_message_single_bet(message)
 
     new_bet = Bet(agency=parsed_message[BET_CLIENT_AGENCY_MSG_POS],
                   first_name=parsed_message[BET_CLIENT_FIRST_NAME_MSG_POS],
@@ -39,10 +72,35 @@ def read_new_bet(rx_socket):
 
     return new_bet
 
-def _parse_message(message: str):
+def _parse_message_single_bet(message: str):
     message = message.removeprefix(ADD_BET_HEADER)
     split_message = message.split(',')
     return split_message
+
+# Create new bets batch
+def create_new_bets_batch(message):
+    total_bets, agency_number, parsed_message = _parse_message_bets_batch(message)
+    new_bets = []
+    for bet_contained in parsed_message:
+        parsed_bet_contained = _parse_message_single_bet(bet_contained)
+
+        new_bet = Bet(agency=agency_number,
+                    first_name=parsed_bet_contained[BATCH_BET_CLIENT_FIRST_NAME_MSG_POS],
+                    last_name=parsed_bet_contained[BATCH_BET_CLIENT_SURNAME_MSG_POS],
+                    document=parsed_bet_contained[BATCH_BET_CLIENT_DOCUMENT_MSG_POS],
+                    birthdate=parsed_bet_contained[BATCH_BET_CLIENT_BIRTHDAY_MSG_POS],
+                    number=parsed_bet_contained[BATCH_BET_CLIENT_LOTTERY_NUMBER_MSG_POS])
+        
+        new_bets.append(new_bet)
+
+    return total_bets, agency_number, new_bets
+
+def _parse_message_bets_batch(message: str):
+    message = message.removeprefix(ADD_BETS_BATCH_HEADER)
+    total_bets = message.pop(0)
+    agency_number = message.pop(0)
+    split_message = message.split(';')
+    return total_bets, agency_number, split_message
 
 
 ## Bytes management from input/output

@@ -1,5 +1,5 @@
 from .bet_management import BetManager
-from .comm_protocol import read_new_bet, send_message, OK_MESSAGE
+from .comm_protocol import *
 
 import socket
 import logging
@@ -44,10 +44,10 @@ class Server:
         client socket will also be closed
         """
         while True:
-            new_bet = read_new_bet(client_sock)
+            new_message = read_message(client_sock)
 
             # If client closes the connection
-            if new_bet is None:
+            if new_message is None:
                 client_sock.close()
                 return
 
@@ -86,3 +86,14 @@ class Server:
             except:
                 time.sleep(SHUTDOWM_RETRY_TIME)
         sys.exit(0)
+
+    def __process_message(self, message):
+        command = comm_protocol.identify_command(message)
+        match command:
+            case comm_protocol.Command.ADD_BET:
+                new_bet = create_new_bet(message)
+                self._bet_manager.store_bets_in_database(new_bet)
+            case comm_protocol.Command.ADD_BATCH:
+                pass
+            case _:
+                pass
