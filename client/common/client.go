@@ -118,7 +118,6 @@ func (c *Client) StartClientLoop() {
 			fmt.Println("Error encontrado: ", err)
 			log.Errorf("action: lectura_batch | result: failure | error: %v",
 				err,
-			
 			)
 		}
 		// Send bets batch
@@ -135,7 +134,7 @@ func (c *Client) StartClientLoop() {
 		fmt.Println("Agencia", c.agency_number, "espera respuesta")
 		resp, err := ReadServerResponse(c.conn)
 
-		if err != nil || resp.CommandType == agency_commands.Ok {
+		if err != nil || resp.CommandType != agency_commands.Ok {
 			fmt.Println("Error encontrado: ", err)
 			log.Errorf("action: apuestas_enviadas | result: fail | cantidad: %v",
 				len(next_batch),
