@@ -63,15 +63,16 @@ class Server:
         # Process bet
         response = OK_MESSAGE
         try:
-            self.__process_message(new_message, client_sock)
+            command = self.__process_message(new_message, client_sock)
         except WrongBatchException as e:
             response = str(e)
         except Exception as e:
             response = str(e)
             logging.error(f"action: apuesta_almacenada | result: fail | error: {e}")
-
-        # Answer client
-        send_message(client_sock, response)
+        
+        if command != Command.END_TX:
+            # Answer client
+            send_message(client_sock, response)
 
 
     def __accept_new_connection(self, server_socket):
@@ -125,6 +126,12 @@ class Server:
             if len(self._agencies_ready) == len(self._agencies_detected):
                 winners_by_agency = self._bet_manager.load_winners()
                 print("Los ganadores entre todos son: ", len(winners_by_agency))
+
+                # Send to all clients its winners
+                for agency, winners in winners_by_agency.keys():
+                    send_winners(self._agencies_detected[agency], winners)
+        
+        return command
 
     def __log_agency(self, agency, client_socket):
         self._agencies_detected[agency] = client_socket

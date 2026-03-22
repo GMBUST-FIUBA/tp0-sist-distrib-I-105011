@@ -19,6 +19,9 @@ END_BETS_TX_HEADER = "END "
 # Correctly processed bet
 OK_MESSAGE = "OK"
 
+# Winners message header
+WINNERS_HEADER = "WIN "
+
 # Add single bet message parts positions
 BET_CLIENT_FIRST_NAME_MSG_POS = 0
 BET_CLIENT_SURNAME_MSG_POS = 1
@@ -157,6 +160,25 @@ def send_message(tx_socket, message):
     encoded_message = bytearray()
     encoded_message.extend(header.to_bytes(TOTAL_MESSAGE_SIZE_BYTES, "big"))
     encoded_message.extend(content)
+
+    # Send message
+    tx_socket.sendall(encoded_message)
+
+TOTAL_BYTES_WINNER_DOCUMENT = 4
+
+# Send winners to agency
+def send_winners(tx_socket, winners_docs):
+    message = WINNERS_HEADER.encode("utf-8", errors="ignore")
+    header = len(message) + TOTAL_BYTES_WINNER_DOCUMENT * len(winners_docs)
+
+    # Append content to header
+    encoded_message = bytearray()
+    encoded_message.extend(header.to_bytes(TOTAL_MESSAGE_SIZE_BYTES, "big"))
+    encoded_message.extend(message)
+
+    # Store all documents
+    for doc in winners_docs:
+        encoded_message.extend(doc.to_bytes(TOTAL_BYTES_WINNER_DOCUMENT, "big"))
 
     # Send message
     tx_socket.sendall(encoded_message)
