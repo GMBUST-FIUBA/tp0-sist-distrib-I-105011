@@ -15,7 +15,10 @@ TOTAL_AGENCIES = 5
 class Server:
     def __init__(self, port, listen_backlog):
         # Initialize agencies that stopped to send bets
-        self._agencies_ready = {}
+        self._agencies_ready = set()
+
+        # Initialize agencies that are detected
+        self._agencies_detected = {}
 
         # Initialize server socket
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -98,7 +101,7 @@ class Server:
                 time.sleep(SHUTDOWM_RETRY_TIME)
         sys.exit(0)
 
-    def __process_message(self, message, client_sock):
+    def __process_message(self, message, client_socket):
         
         command = comm_protocol.identify_command(message)
 
@@ -106,19 +109,23 @@ class Server:
         if command == comm_protocol.Command.ADD_BET:
             new_bet = create_new_bet(message)
             self._bet_manager.store_bet_in_database(new_bet)
+            self.__log_agency(new_bet.agency, client_socket)
             logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
         elif command == comm_protocol.Command.ADD_BATCH:
             new_bets = create_new_bets_batch(message)
             self._bet_manager.store_bets_batch(new_bets)
+            self.__log_agency(new_bets[0].agency, client_socket)
             logging.info(f'action: apuesta_recibida | result: success | cantidad: {len(new_bets)}')
         elif command == comm_protocol.Command.END_TX:
             agency = get_stopped_bet_sending_agency(message)
 
             # Store agency that stopped sending data
-            self._agencies_ready[agency] = client_sock
+            self._agencies_ready.add(agency)
             
             # If all agencies stopped sending bets, look for winners
-            if len(self._agencies_ready) == TOTAL_AGENCIES:
+            if len(self._agencies_ready) == len(self._agencies_detected):
                 winners_by_agency = self._bet_manager.load_winners()
                 print("Los ganadores entre todos son: ", len(winners_by_agency))
 
+    def __log_agency(self, agency, client_socket):
+        self._agencies_detected[agency] = client_socket
