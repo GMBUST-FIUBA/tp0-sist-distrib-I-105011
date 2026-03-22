@@ -133,6 +133,7 @@ func (c *Client) StartClientLoop() {
 		// Receive response
 		fmt.Println("Agencia", c.agency_number, "espera respuesta")
 		resp, err := ReadServerResponse(c.conn)
+		fmt.Println("Agencia", c.agency_number, " recibió respuesta: ", resp)
 
 		if err != nil || resp.CommandType != agency_commands.Ok {
 			fmt.Println("Error encontrado: ", err)
