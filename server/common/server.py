@@ -75,7 +75,7 @@ class Server:
             send_message(client_sock, response)
 
 
-    def __accept_new_connection(self):
+    def __accept_new_connection(self, server_socket):
         """
         Accept new connections
 
