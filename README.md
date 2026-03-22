@@ -252,6 +252,12 @@ Las funciones `load_bets(...)` y `has_won(...)` son provistas por la cátedra y 
 
 No es correcto realizar un broadcast de todos los ganadores hacia todas las agencias, se espera que se informen los DNIs ganadores que correspondan a cada una de ellas.
 
+#### Resolución de ejercicio 7
+
+##### Modificación al protocolo
+Se agrega un nuevo comando `END ${AGENCIA}` donde *AGENCIA* es el identificador del local de lotería. Este comando indica que ya no se van a enviar más apuestas y que se espera al ganador. La respuesta a este comando es la lista de ganadores, que solo se tendrá una vez que se hayan obtenido todas las apuestas de todas las demás agencias. La respuesta tendrá la forma `WIN <DNI_1><DNI_2>...<DNI_N>` donde *DNI_i* es el DNI de un ganador del sorteo, que se representa con un número de 4 bytes.
+
+
 ## Parte 3: Repaso de Concurrencia
 En este ejercicio es importante considerar los mecanismos de sincronización a utilizar para el correcto funcionamiento de la persistencia.
 
