@@ -46,7 +46,7 @@ class Server:
                 callback = key.data
                 callback(key.fileobj, mask)
 
-    def __handle_client_connection(self, client_sock):
+    def __handle_client_connection(self, client_sock, mask):
         """
         Read message from a specific client socket and closes the socket
 
@@ -75,7 +75,7 @@ class Server:
             send_message(client_sock, response)
 
 
-    def __accept_new_connection(self, server_socket):
+    def __accept_new_connection(self, server_socket, mask):
         """
         Accept new connections
 
