@@ -41,7 +41,7 @@ class Server:
         # Server keeps accepting connections until SIGTERM is launched
         # Selector keeps iterating over all sockets when something is read
         while True:
-            events = self.selector.select(timeout=None)
+            events = self._selector.select(timeout=None)
             for key, mask in events:
                 callback = key.data
                 callback(key.fileobj)
