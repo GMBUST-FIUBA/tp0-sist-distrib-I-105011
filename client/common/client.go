@@ -115,20 +115,20 @@ func (c *Client) StartClientLoop() {
 		if err == io.EOF {
 			continue_reading_batches = false
 		} else if err != nil {
+			fmt.Println("Error encontrado: ", err)
 			log.Errorf("action: lectura_batch | result: failure | error: %v",
 				err,
 			
 			)
-			fmt.Println("Error encontrado: ", err)
 		}
 		// Send bets batch
 		fmt.Println("Agencia", c.agency_number, "que envía batch de tamaño: ", len(next_batch))
 		err = SendBetsBatch(c.conn, next_batch, c.agency_number)
 		if err != nil {
+			fmt.Println("Error encontrado: ", err)
 			log.Errorf("action: apuestas_enviadas | result: fail | cantidad: %v",
 				len(next_batch),
 			)
-			fmt.Println("Error encontrado: ", err)
 			return
 		}
 		// Receive response
@@ -136,10 +136,10 @@ func (c *Client) StartClientLoop() {
 		resp, err := ReadServerResponse(c.conn)
 
 		if err != nil || resp.CommandType == agency_commands.Ok {
+			fmt.Println("Error encontrado: ", err)
 			log.Errorf("action: apuestas_enviadas | result: fail | cantidad: %v",
 				len(next_batch),
 			)
-			fmt.Println("Error encontrado: ", err)
 			return
 		}
 
