@@ -13,6 +13,9 @@ ADD_BET_HEADER = "ADD "
 # Add batch of bets header
 ADD_BETS_BATCH_HEADER = "ADDB"
 
+# End bets transmission
+END_BETS_TX_HEADER = "END "
+
 # Correctly processed bet
 OK_MESSAGE = "OK"
 
@@ -35,11 +38,13 @@ BATCH_BET_CLIENT_LOTTERY_NUMBER_MSG_POS = 4
 
 class Command(Enum):
     ADD_BET = 1,
-    ADD_BATCH = 2
+    ADD_BATCH = 2,
+    END_TX = 3
 
 command_header_to_enum = {
     ADD_BET_HEADER: Command.ADD_BET,
     ADD_BETS_BATCH_HEADER: Command.ADD_BATCH,
+    END_BETS_TX_HEADER: Command.END_TX
 }
 
 def identify_command(message):
