@@ -16,6 +16,9 @@ ADD_BETS_BATCH_COMM_TYPE = 66
 # End bets transmission
 END_BETS_TX_COMM_TYPE = 69
 
+# End bets transmission
+END_BETS_TX_HEADER = "END "
+
 # Correctly processed bet
 OK_COMM_TYPE = 0
 
