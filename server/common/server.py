@@ -44,7 +44,7 @@ class Server:
             events = self._selector.select(timeout=None)
             for key, mask in events:
                 callback = key.data
-                callback(key.fileobj)
+                callback(key.fileobj, mask)
 
     def __handle_client_connection(self, client_sock):
         """
