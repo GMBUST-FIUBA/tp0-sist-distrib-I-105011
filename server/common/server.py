@@ -53,26 +53,25 @@ class Server:
         If a problem arises in the communication with the client, the
         client socket will also be closed
         """
-        while True:
-            new_message = read_message(client_sock)
+        new_message = read_message(client_sock)
 
-            # If client closes the connection
-            if new_message is None:
-                client_sock.close()
-                return
+        # If client closes the connection
+        if new_message is None:
+            client_sock.close()
+            return
 
-            # Process bet
-            response = OK_MESSAGE
-            try:
-                self.__process_message(new_message, client_sock)
-            except WrongBatchException as e:
-                response = str(e)
-            except Exception as e:
-                response = str(e)
-                logging.error(f"action: apuesta_almacenada | result: fail | error: {e}")
+        # Process bet
+        response = OK_MESSAGE
+        try:
+            self.__process_message(new_message, client_sock)
+        except WrongBatchException as e:
+            response = str(e)
+        except Exception as e:
+            response = str(e)
+            logging.error(f"action: apuesta_almacenada | result: fail | error: {e}")
 
-            # Answer client
-            send_message(client_sock, response)
+        # Answer client
+        send_message(client_sock, response)
 
 
     def __accept_new_connection(self, server_socket):
