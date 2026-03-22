@@ -57,6 +57,7 @@ class Server:
 
         # If client closes the connection
         if new_message is None:
+            self._selector.unregister(client_sock)
             client_sock.close()
             return
 
@@ -128,8 +129,11 @@ class Server:
                 print("Los ganadores entre todos son: ", len(winners_by_agency))
 
                 # Send to all clients its winners
-                for agency, winners in winners_by_agency.keys():
+                for agency, winners in winners_by_agency.items():
+                    socket = self._agencies_detected[agency]
                     send_winners(self._agencies_detected[agency], winners)
+                    self._selector.unregister(socket)
+                    socket.close()
         
         return command
 
