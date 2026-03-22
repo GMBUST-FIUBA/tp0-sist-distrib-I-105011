@@ -140,5 +140,11 @@ class Server:
         
         return command
 
+                # Send to all clients its winners
+                for agency, winners in winners_by_agency.keys():
+                    send_winners(self._agencies_detected[agency], winners)
+        
+        return command
+
     def __log_agency(self, agency, client_socket):
         self._agencies_detected[agency] = client_socket
