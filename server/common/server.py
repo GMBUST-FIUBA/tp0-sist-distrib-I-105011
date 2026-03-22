@@ -2,6 +2,7 @@ from .bet_management import BetManager
 from .comm_protocol import *
 from .errors import *
 
+import selectors
 import socket
 import logging
 import signal
@@ -14,32 +15,33 @@ TOTAL_AGENCIES = 5
 class Server:
     def __init__(self, port, listen_backlog):
         # Initialize agencies that stopped to send bets
-        self.agencies_ready = set()
+        self._agencies_ready = {}
 
         # Initialize server socket
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_socket.bind(('', port))
         self._server_socket.listen(listen_backlog)
+        self._server_socket.setblocking(False)
 
         # Initialize bet manager
         self._bet_manager = BetManager()
+
+        # Initialize selector
+        self._selector = selectors.DefaultSelector()
+        self._selector.register(self._server_socket, selectors.EVENT_READ, data=self.__accept_new_connection)
 
         # Initialize server's shutdown mechanism
         signal.signal(signal.SIGTERM, self.__shut_down_server)
 
     def run(self):
-        """
-        Dummy Server loop
-
-        Server that accept a new connections and establishes a
-        communication with a client. After client with communucation
-        finishes, servers starts to accept new connections again
-        """
 
         # Server keeps accepting connections until SIGTERM is launched
+        # Selector keeps iterating over all sockets when something is read
         while True:
-            client_sock = self.__accept_new_connection()
-            self.__handle_client_connection(client_sock)
+            events = self.selector.select(timeout=None)
+            for key, mask in events:
+                callback = key.data
+                callback(key.fileobj)
 
     def __handle_client_connection(self, client_sock):
         """
@@ -59,7 +61,7 @@ class Server:
             # Process bet
             response = OK_MESSAGE
             try:
-                self.__process_message(new_message)
+                self.__process_message(new_message, client_sock)
             except WrongBatchException as e:
                 response = str(e)
             except Exception as e:
@@ -80,9 +82,12 @@ class Server:
 
         # Connection arrived
         logging.info('action: accept_connections | result: in_progress')
+
         c, addr = self._server_socket.accept()
+        c.setblocking(False)
+        self._selector.register(c, selectors.EVENT_READ, data=self.__handle_client_connection)
+
         logging.info(f'action: accept_connections | result: success | ip: {addr[0]}')
-        return c
     
     def __shut_down_server(self, signum, frame):
         while True:
@@ -93,7 +98,7 @@ class Server:
                 time.sleep(SHUTDOWM_RETRY_TIME)
         sys.exit(0)
 
-    def __process_message(self, message):
+    def __process_message(self, message, client_sock):
         
         command = comm_protocol.identify_command(message)
 
@@ -108,6 +113,12 @@ class Server:
             logging.info(f'action: apuesta_recibida | result: success | cantidad: {len(new_bets)}')
         elif command == comm_protocol.Command.END_TX:
             agency = get_stopped_bet_sending_agency(message)
-            self.agencies_ready.add(agency)
-            if len(self.agencies_ready) == TOTAL_AGENCIES:
-                all_winners = self._bet_manager.load_winners()
+
+            # Store agency that stopped sending data
+            self._agencies_ready[agency] = client_sock
+            
+            # If all agencies stopped sending bets, look for winners
+            if len(self._agencies_ready) == TOTAL_AGENCIES:
+                winners_by_agency = self._bet_manager.load_winners()
+                print("Los ganadores entre todos son: ", len(winners_by_agency))
+

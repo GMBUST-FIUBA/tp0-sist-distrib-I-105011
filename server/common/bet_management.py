@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from .utils import Bet, store_bets
+from .utils import Bet, store_bets, load_bets, has_won
 from . import errors
 
 import logging
@@ -17,6 +17,8 @@ class BetManager:
     def __init__(self):
         self.staged_bets_numbers = set()
         self.staged_bets = {}
+
+        self.sockets_to_agencies = {}
 
     # Store single bet
     def store_bet_in_database(self, new_bet: Bet):
@@ -80,8 +82,17 @@ class BetManager:
         self.staged_bets_numbers = set()
         self.staged_bets = {}
 
-    def load_winners():
-        return
+    def load_winners(self):
+        all_bets = load_bets()
+        winners = {}
+
+        for bet in all_bets:
+            if has_won(bet):
+                if bet.agency not in winners:
+                    winners[bet.agency] = []
+                winners[bet.agency].append(bet.document)
+
+        return winners
 
 
 MARCH_MONTH_NUMBER = 3
