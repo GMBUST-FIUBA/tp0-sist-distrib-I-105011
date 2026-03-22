@@ -60,7 +60,7 @@ class Server:
                 return
 
             # Process bet
-            response = OK_COMM_TYPE
+            response = OK_MESSAGE
             try:
                 command = self.__process_message(new_message, client_sock)
 
@@ -143,6 +143,7 @@ class Server:
                 # Send to all clients its winners
                 for agency, winners in winners_by_agency.keys():
                     send_winners(self._agencies_detected[agency], winners)
+                    self._selector.unregister(socket)
         
         return command
 
