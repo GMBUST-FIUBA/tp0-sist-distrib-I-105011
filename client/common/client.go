@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/binary"
 	"encoding/csv"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -97,6 +98,8 @@ func (c *Client) StartClientLoop() {
 	// Close socket when exiting
 	defer c.conn.Close()
 
+	fmt.Println("Agencia que envía: ", c.agency_number)
+
 	// Send all bets by batches
 	for continue_reading_batches {
 		select {
@@ -137,6 +140,8 @@ func (c *Client) StartClientLoop() {
 			len(next_batch),
 		)
 	}
+
+	fmt.Println("Agencia que terminó: ", c.agency_number)
 
 	// Send end of bets transmission
 	SendEndTxBets(c.conn, c.agency_number)
