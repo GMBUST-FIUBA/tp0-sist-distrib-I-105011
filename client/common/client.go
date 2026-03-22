@@ -124,6 +124,7 @@ func (c *Client) StartClientLoop() {
 			log.Errorf("action: apuestas_enviadas | result: fail | cantidad: %v",
 				len(next_batch),
 			)
+			fmt.Println("Error encontrado: ", err)
 			return
 		}
 		// Receive response
