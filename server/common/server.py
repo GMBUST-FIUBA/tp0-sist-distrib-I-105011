@@ -9,9 +9,13 @@ import sys
 import time
 
 SHUTDOWM_RETRY_TIME = 0.1
+TOTAL_AGENCIES = 5
 
 class Server:
     def __init__(self, port, listen_backlog):
+        # Initialize agencies that stopped to send bets
+        self.agencies_ready = set()
+
         # Initialize server socket
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_socket.bind(('', port))
@@ -102,3 +106,8 @@ class Server:
             new_bets = create_new_bets_batch(message)
             self._bet_manager.store_bets_batch(new_bets)
             logging.info(f'action: apuesta_recibida | result: success | cantidad: {len(new_bets)}')
+        elif command == comm_protocol.Command.END_TX:
+            agency = get_stopped_bet_sending_agency(message)
+            self.agencies_ready.add(agency)
+            if len(self.agencies_ready) == TOTAL_AGENCIES:
+                all_winners = self._bet_manager.load_winners()

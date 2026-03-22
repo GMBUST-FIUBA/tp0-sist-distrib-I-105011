@@ -80,6 +80,9 @@ class BetManager:
         self.staged_bets_numbers = set()
         self.staged_bets = {}
 
+    def load_winners():
+        return
+
 
 MARCH_MONTH_NUMBER = 3
 

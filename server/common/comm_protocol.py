@@ -100,6 +100,10 @@ def _parse_message_bets_batch(message):
     split_message = message.split(';')
     return total_bets, agency_number, split_message
 
+# Get agency that stops sending bets
+def get_stopped_bet_sending_agency(message):
+    message = message[4:].decode("utf-8", errors="ignore")
+    return int(message)
 
 ## Bytes management from input/output
 
