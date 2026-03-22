@@ -132,12 +132,14 @@ func (c *Client) StartClientLoop() {
 			return
 		}
 		// Receive response
+		fmt.Println("Agencia", c.agency_number, "espera respuesta")
 		resp, err := ReadServerResponse(c.conn)
 
 		if err != nil || resp.CommandType == agency_commands.Ok {
 			log.Errorf("action: apuestas_enviadas | result: fail | cantidad: %v",
 				len(next_batch),
 			)
+			fmt.Println("Error encontrado: ", err)
 			return
 		}
 
