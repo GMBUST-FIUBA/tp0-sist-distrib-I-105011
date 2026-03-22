@@ -1,11 +1,14 @@
 package common
 
 import (
-	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/common/errors"
+	"bytes"
 	"encoding/binary"
 	"io"
 	"net"
-	"strings"
+	"strconv"
+
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/common/commands"
+	"github.com/7574-sistemas-distribuidos/docker-compose-init/client/common/errors"
 )
 
 // Ok message
@@ -33,6 +36,9 @@ const NOT_VALID_DOCUMENT_ERR_MSG = "NOT_VALID_DNI"
 const ADD_BET_MSG_HEADER = "ADD "
 const ADD_BETS_BATCH_MSG_HEADER = "ADDB"
 
+// End of transmission
+const END_OF_BETS_HEADER = "END "
+
 // Header length in bytes
 const TOTAL_MSG_HEADER_BYTES = 2
 
@@ -42,6 +48,26 @@ const TOTAL_BETS_BATCH_HEADER_BYTES = 1
 // Agency number in batch message in bytes
 const AGENCY_NUMBER_BATCH_HEADER_BYTES = 1
 
+// Calculate package length according to protocol
+func calcPackageLength(packet []byte) []byte {
+	total_length_bytes := make([]byte, TOTAL_MSG_HEADER_BYTES)
+	binary.BigEndian.PutUint16(total_length_bytes, uint16(len(packet)))
+	return total_length_bytes
+}
+
+// Serialize message
+func CreateMessage(content []byte) []byte {
+	// Calculate total message length
+	total_length_bytes := calcPackageLength(content)
+
+	// Create new message
+	var message []byte
+	message = append(message, total_length_bytes...)
+	message = append(message, content...)
+	return message
+}
+
+
 // Send bet to server
 func SendBet(socket net.Conn, bet Bet, agency_number uint) error {
 	// Create content
@@ -49,15 +75,9 @@ func SendBet(socket net.Conn, bet Bet, agency_number uint) error {
 	content = append(content, []byte(ADD_BET_MSG_HEADER)...)
 	serialized_bet := bet.TurnToBytes(agency_number)
 	content = append(content, serialized_bet...)
-	
-	// Calculate total message length
-	total_length_bytes := make([]byte, TOTAL_MSG_HEADER_BYTES)
-	binary.BigEndian.PutUint16(total_length_bytes, uint16(len(content)))
 
 	// Create new message
-	var message []byte
-	message = append(message, total_length_bytes...)
-	message = append(message, content...)
+	message := CreateMessage(content)
 
 	// Send bytes from socket
 	return SendBytes(socket, message)
@@ -90,16 +110,23 @@ func SendBetsBatch(socket net.Conn, bets []Bet, agency_number uint) error {
 	message_content = append(message_content, agency_number_bytes)
 	message_content = append(message_content, bets_to_bytes...)
 
-	// Calculate total message length
-	total_length_bytes := make([]byte, TOTAL_MSG_HEADER_BYTES)
-	binary.BigEndian.PutUint16(total_length_bytes, uint16(len(message_content)))
-
 	// Create new message
-	var message []byte
-	message = append(message, total_length_bytes...)
-	message = append(message, message_content...)
+	message := CreateMessage(message_content)
 
 	// Send bytes from socket
+	return SendBytes(socket, message)
+}
+
+// Send end of bets transmission
+func SendEndTxBets(socket net.Conn, agency_number uint) error {
+	message_content := END_OF_BETS_HEADER
+	message_content += strconv.FormatUint(uint64(agency_number), 10)
+	message_content_bytes := []byte(message_content)
+
+	// Create new message
+	message := CreateMessage(message_content_bytes)
+
+	// Send bytes
 	return SendBytes(socket, message)
 }
 
@@ -120,16 +147,16 @@ func SendBytes(socket net.Conn, bytes_to_send []byte) error {
 }
 
 // Reads response from server
-func ReadServerResponse(socket net.Conn) error {
+func ReadServerResponse(socket net.Conn) (*agency_commands.AgencyCommand, error) {
 	// Read message header
 	total_msg_size, err := readMessageHeader(socket)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// Read message content
 	content, err := readMessageContent(socket, total_msg_size)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Return response
@@ -137,25 +164,31 @@ func ReadServerResponse(socket net.Conn) error {
 }
 
 // Generate error according to response or nil if it is ok
-func processServerResponse(content string) error {
-	if content == OK_MESSAGE {
-		return nil
+func processServerResponse(content []byte) (*agency_commands.AgencyCommand, error) {
+	if bytes.Equal(content, []byte(OK_MESSAGE)) {
+		return agency_commands.NewOkCommand(), nil
+	}
+	// Check type
+	msg_type := string(content[0:4])
+	msg_content := content[4:]
+	if msg_type == END_OF_BETS_HEADER {
+		return agency_commands.NewWinnersCommand(msg_content), nil
 	}
 	// Check error type
-	err_message := strings.TrimPrefix(content, ERROR_MESSAGE_PREFIX)
+	err_message := string(msg_content)
 	switch err_message {
 	case NOT_ADULT_CLIENT_ERR_MSG:
-		return client_errors.NewNotAdultClientError(LOG_NOT_ADULT_ERROR_MSG)
+		return nil, client_errors.NewNotAdultClientError(LOG_NOT_ADULT_ERROR_MSG)
 	case NUMBER_TAKEN_ERR_MSG:
-		return client_errors.NewTakenNumberError(LOG_BET_NUMBER_TAKEN_ERROR_MSG)
+		return nil, client_errors.NewTakenNumberError(LOG_BET_NUMBER_TAKEN_ERROR_MSG)
 	case REPEATED_BET_ERR_MSG:
-		return client_errors.NewRepeatedBetError(LOG_REPEATED_BET_ERROR_MSG)
+		return nil, client_errors.NewRepeatedBetError(LOG_REPEATED_BET_ERROR_MSG)
 	case NOT_VALID_NUMBER_ERR_MSG:
-		return client_errors.NewNotValidNumberError(LOG_NOT_VALID_BET_NUMBER_ERROR_MSG)
+		return nil, client_errors.NewNotValidNumberError(LOG_NOT_VALID_BET_NUMBER_ERROR_MSG)
 	case NOT_VALID_DOCUMENT_ERR_MSG:
-		return client_errors.NewNotValidDocumentError(LOG_NOT_VALID_DOC_ERROR_MSG)
+		return nil, client_errors.NewNotValidDocumentError(LOG_NOT_VALID_DOC_ERROR_MSG)
 	default:
-		return client_errors.NewDefaultError(err_message)
+		return nil, client_errors.NewDefaultError(err_message)
 	}
 }
 
@@ -171,13 +204,13 @@ func readMessageHeader(socket net.Conn) (uint16, error) {
 	return message_size, nil
 }
 
-func readMessageContent(socket net.Conn, total_bytes uint16) (string, error) {
+func readMessageContent(socket net.Conn, total_bytes uint16) ([]byte, error) {
 	buffer := make([]byte, total_bytes)
 
 	// Read all bytes expected
 	_, err := io.ReadFull(socket, buffer)
 	if err != nil {
-		return "", client_errors.NewCommunicationError(LOG_SOCKET_ERROR_MSG)
+		return nil, client_errors.NewCommunicationError(LOG_SOCKET_ERROR_MSG)
 	}
-	return string(buffer), nil
+	return buffer, nil
 }
