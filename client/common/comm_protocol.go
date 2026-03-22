@@ -36,6 +36,9 @@ const ADD_BET_MSG_HEADER = "A"
 // Add bets batch header message
 const ADD_BETS_BATCH_MSG_HEADER = "B"
 
+// End of transmission
+const END_OF_BETS_HEADER = "END "
+
 // Header length in bytes
 const TOTAL_MSG_HEADER_BYTES = 2
 
