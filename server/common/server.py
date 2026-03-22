@@ -47,34 +47,40 @@ class Server:
                 callback(key.fileobj, mask)
 
     def __handle_client_connection(self, client_sock, mask):
-        """
-        Read message from a specific client socket and closes the socket
-
-        If a problem arises in the communication with the client, the
-        client socket will also be closed
-        """
-        new_message = read_message(client_sock)
-
-        # If client closes the connection
-        if new_message is None:
-            self._selector.unregister(client_sock)
-            client_sock.close()
-            return
-
-        # Process bet
-        response = OK_MESSAGE
         try:
-            command = self.__process_message(new_message, client_sock)
-        except WrongBatchException as e:
-            response = str(e)
-        except Exception as e:
-            response = str(e)
-            logging.error(f"action: apuesta_almacenada | result: fail | error: {e}")
-        
-        if command != Command.END_TX:
-            # Answer client
-            send_message(client_sock, response)
+            new_message = read_message(client_sock)
 
+            # If client closes the connection
+            if new_message is None:
+                self._selector.unregister(client_sock)
+                client_sock.close()
+                return
+
+            # Process bet
+            response = OK_MESSAGE
+            try:
+                command = self.__process_message(new_message, client_sock)
+
+                if command == Command.END_TX:
+                    self.__close_client(client_sock)
+                else:
+                    send_message(client_sock, response)
+            except WrongBatchException as e:
+                response = str(e)
+                raise e
+            except Exception as e:
+                response = str(e)
+                logging.error(f"action: apuesta_almacenada | result: fail | error: {e}")
+                raise e
+        except Exception:
+            self.__close_client(client_sock)
+
+    def __close_client(self, client_sock):
+        try:
+            self._selector.unregister(client_sock)
+        except KeyError:
+            pass
+        client_sock.close()
 
     def __accept_new_connection(self, server_socket, mask):
         """
@@ -133,7 +139,6 @@ class Server:
                     socket = self._agencies_detected[agency]
                     send_winners(self._agencies_detected[agency], winners)
                     self._selector.unregister(socket)
-                    socket.close()
         
         return command
 
