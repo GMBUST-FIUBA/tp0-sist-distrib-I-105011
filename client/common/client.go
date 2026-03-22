@@ -110,15 +110,19 @@ func (c *Client) StartClientLoop() {
 		default:
 		}
 
+		fmt.Println("Agencia", c.agency_number, "lee nuevo batch")
 		next_batch, err := c.readNextBetsBatch()
 		if err == io.EOF {
 			continue_reading_batches = false
 		} else if err != nil {
 			log.Errorf("action: lectura_batch | result: failure | error: %v",
 				err,
+			
 			)
+			fmt.Println("Error encontrado: ", err)
 		}
 		// Send bets batch
+		fmt.Println("Agencia", c.agency_number, "que envía batch de tamaño: ", len(next_batch))
 		err = SendBetsBatch(c.conn, next_batch, c.agency_number)
 		if err != nil {
 			log.Errorf("action: apuestas_enviadas | result: fail | cantidad: %v",
