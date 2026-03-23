@@ -200,7 +200,7 @@ class Server:
         pipe_number = self._total_connected_agencies + 1
 
         # Submit agency process
-        self._thread_pool.apply(
+        self._thread_pool.apply_async(
             agency_process,
             (c, self._bet_manager_pipe, self._bet_manager_to_worker_pipes[pipe_number][1], pipe_number)
         )
