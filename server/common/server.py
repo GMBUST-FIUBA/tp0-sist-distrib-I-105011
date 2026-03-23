@@ -97,7 +97,7 @@ def agency_process(client_sock, bets_manager_rx_channel, bets_tx_channel, pipe_u
             # Process bet
             response = OK_MESSAGE
             try:
-                command = __agency_process_message(new_message, client_sock, bets_manager_rx_channel, bets_tx_channel)
+                command = __agency_process_message(new_message, client_sock, bets_manager_rx_channel, bets_tx_channel, pipe_used)
 
                 if command != Command.END_TX:
                     send_message(client_sock, response)
