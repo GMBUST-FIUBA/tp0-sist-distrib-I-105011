@@ -182,9 +182,6 @@ class Server:
         )
         bets_manager_process.start()
 
-        # Create thread pool
-        self._thread_pool = multiprocessing.Pool(processes=TOTAL_THREADS_IN_POOL)
-
         # Initialize server's shutdown mechanism
         signal.signal(signal.SIGTERM, self.__shut_down_server)
 
