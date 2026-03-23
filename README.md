@@ -266,9 +266,9 @@ En este ejercicio es importante considerar los mecanismos de sincronización a u
 Modificar el servidor para que permita aceptar conexiones y procesar mensajes en paralelo. En caso de que el alumno implemente el servidor en Python utilizando _multithreading_,  deberán tenerse en cuenta las [limitaciones propias del lenguaje](https://wiki.python.org/moin/GlobalInterpreterLock).
 
 #### Resolución de ejercicio 8
-Para obtener paralelismo dentro de Python se utilizará el módulo de _multiprocessing_. Se creará un *Thread Pool* y por cada agencia se generará un proceso que será manejado por alguno de los hilos.
+Para obtener paralelismo dentro de Python se utilizará el módulo de _multiprocessing_. Se creará un *Thread Pool* y por cada agencia se generará un proceso que será manejado por alguno de los hilos. A su vez, se creará un proceso al cual pueden conectarse todos procesos de agencias que se encargará de almacenar las apuestas realizadas por los clientes.
 
-Los procesos esperarán a los demás una vez que se hayan guardado las apuestas y una vez que se hayan guardado todas, se buscarán a los ganadores y se enviarán todos los resultados a los procesos, que a su vez enviarán los resultados a las agencias.
+Los procesos esperarán a los demás a que hayan guardado sus apuestas, y una vez que se hayan guardado todas se buscarán a los ganadores y se enviarán los resultados a los procesos, que a su vez enviarán los resultados a las agencias.
 
 
 ## Condiciones de Entrega

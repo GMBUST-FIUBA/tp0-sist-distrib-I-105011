@@ -8,10 +8,22 @@ import logging
 import signal
 import sys
 import time
+import multiprocessing
 
 SHUTDOWM_RETRY_TIME = 0.1
 TOTAL_AGENCIES = 5
 
+TOTAL_THREADS_IN_POOL = 4
+
+# Bet manager process
+def bet_manager_process():
+    pass
+
+# Agency process
+def agency_process():
+    pass
+
+# Server class
 class Server:
     def __init__(self, port, listen_backlog, total_agencies):
         # Initialize agencies that stopped to send bets
@@ -31,6 +43,9 @@ class Server:
 
         # Initialize bet manager
         self._bet_manager = BetManager()
+
+        # Create thread pool
+        self._thread_pool = multiprocessing.Pool(processes=TOTAL_THREADS_IN_POOL)
 
         # Initialize selector
         self._selector = selectors.DefaultSelector()
