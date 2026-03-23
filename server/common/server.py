@@ -43,6 +43,7 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
 
     while True:
         msg_from_agency = agencies_rx_channel.get()
+        logging.info(f"Mensaje recibido {msg_from_agency}")
         msg_type = msg_from_agency[INTER_ACTOR_COMMAND_POS]
 
         if msg_type == InterActorsCommand.ADD_BET:
@@ -126,16 +127,19 @@ def __agency_process_message(message, client_socket, bets_manager_rx_channel, be
 
         # Check type
         if command == comm_protocol.Command.ADD_BET:
+            logging.info(f"Agencia para pipe {pipe_used} recibe apuesta")
             # Get new bet
             new_bet = create_new_bet(message)
             # Send to manager new bet
             bets_tx_channel.put((InterActorsCommand.ADD_BET, new_bet, pipe_used))
         elif command == comm_protocol.Command.ADD_BATCH:
+            logging.info(f"Agencia para pipe {pipe_used} recibe batch de apuestas")
             # Get bets batch
             new_bets = create_new_bets_batch(message)
             # Send to manager the batch
             bets_tx_channel.put((InterActorsCommand.ADD_BET, new_bets, pipe_used))
         elif command == comm_protocol.Command.END_TX:
+            logging.info(f"Agencia para pipe {pipe_used} recibe fin de recepción de apuestas")
             # Get agency that stopped
             agency = get_stopped_bet_sending_agency(message)
 
