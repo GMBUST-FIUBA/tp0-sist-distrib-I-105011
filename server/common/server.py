@@ -131,7 +131,7 @@ class Server:
             self._agencies_ready.add(agency)
             
             # If all agencies stopped sending bets, look for winners
-            if len(self._agencies_ready) == len(self._agencies_detected):
+            if len(self._agencies_ready) == 3:
                 winners_by_agency = self._bet_manager.load_winners()
                 print("Los ganadores entre todos son: ", len(winners_by_agency))
 
