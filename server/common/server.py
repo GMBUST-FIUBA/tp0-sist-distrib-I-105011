@@ -2,7 +2,6 @@ from .bet_management import BetManager
 from .comm_protocol import *
 from .errors import *
 
-import selectors
 import socket
 import logging
 import signal
@@ -158,7 +157,6 @@ class Server:
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_socket.bind(('', port))
         self._server_socket.listen(listen_backlog)
-        self._server_socket.setblocking(False)
 
         # Create agencies workers to bet manager pipeline
         self._bet_manager_pipe = multiprocessing.Queue()
@@ -183,10 +181,11 @@ class Server:
         signal.signal(signal.SIGTERM, self.__shut_down_server)
 
     def run(self):
-        # Accept connections and each time
-        pass
+        # Accept connections
+        while True:
+            self.__accept_new_connection()
 
-    def __accept_new_connection(self, server_socket, mask):
+    def __accept_new_connection(self):
         """
         Accept new connections
 
