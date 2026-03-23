@@ -175,7 +175,8 @@ class Server:
         # Create bets manager process
         bets_manager_process = multiprocessing.Process(
             target=bet_manager_process, 
-            args=(bet_manager_tx_pipes_side, self._bet_manager_pipe, total_agencies)
+            args=(bet_manager_tx_pipes_side, self._bet_manager_pipe, total_agencies),
+            error_callback=lambda e: logging.error(f"Worker crashed: {e}")
         )
         bets_manager_process.start()
 
