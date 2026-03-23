@@ -82,8 +82,7 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
                 # Send to all clients its winners
                 for agency, winners in winners_by_agency.items():
                     pipe_translation = agency_to_pipe_translator[agency]
-                    tx_socket = agencies_tx_channel[pipe_translation]
-                    send_winners(tx_socket, winners)
+                    agencies_tx_channel[pipe_translation].put((InterActorsCommand.WINNERS, winners))
 
 # Agency process
 def agency_process(client_fd, bets_manager_rx_channel, bets_tx_channel, pipe_used):
@@ -142,7 +141,7 @@ def __agency_process_message(message, client_socket, bets_manager_rx_channel, be
             bets_tx_channel.put((InterActorsCommand.END_TX_BETS, agency, pipe_used))
 
             # When the winners are received, send them to agency
-            response = bets_manager_rx_channel.recv()
+            response = bets_manager_rx_channel.get()
             if response[INTER_ACTOR_COMMAND_POS] == InterActorsCommand.WINNERS:
                 send_winners(client_socket, response[INTER_ACTOR_WINNERS_POS])
 
@@ -164,13 +163,12 @@ class Server:
         self._server_socket.listen(listen_backlog)
 
         # Create agencies workers to bet manager pipeline
-        self._bet_manager_pipe = multiprocessing.Queue()
+        manager = multiprocessing.Manager()
+        self._bet_manager_pipe = manager.Queue()
 
         # Create pipes from bet manager to each worker
-        self._bet_manager_to_worker_pipes = {i: multiprocessing.Pipe() for i in range(1, total_agencies + 1)}
-
-        ## Get inputs to pipes for bet manager
-        bet_manager_tx_pipes_side = {i: self._bet_manager_to_worker_pipes[i][0] for i in range(1, total_agencies + 1)}
+        self._bet_manager_to_worker_pipes = {i: manager.Queue() for i in range(1, total_agencies + 1)}
+        bet_manager_tx_pipes_side = self._bet_manager_to_worker_pipes
 
         # Create bets manager process
         bets_manager_process = multiprocessing.Process(
