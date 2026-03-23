@@ -114,6 +114,7 @@ func (c *Client) StartClientLoop() {
 		next_batch, err := c.readNextBetsBatch()
 		if err == io.EOF && len(next_batch) == 0 {
 			continue_reading_batches = false
+			break
 		} else if err != nil {
 			fmt.Println("Error encontrado: ", err)
 			log.Errorf("action: lectura_batch | result: failure | error: %v",
