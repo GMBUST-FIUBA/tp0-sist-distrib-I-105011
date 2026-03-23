@@ -3,7 +3,6 @@ package common
 import (
 	"encoding/binary"
 	"encoding/csv"
-	"fmt"
 	"io"
 	"net"
 	"os"
@@ -98,8 +97,6 @@ func (c *Client) StartClientLoop() {
 	// Close socket when exiting
 	defer c.conn.Close()
 
-	fmt.Println("Agencia que envía: ", c.agency_number)
-
 	// Send all bets by batches
 	for continue_reading_batches {
 		select {
@@ -110,34 +107,27 @@ func (c *Client) StartClientLoop() {
 		default:
 		}
 
-		fmt.Println("Agencia", c.agency_number, "lee nuevo batch")
 		next_batch, err := c.readNextBetsBatch()
 		if err == io.EOF && len(next_batch) == 0 {
 			continue_reading_batches = false
 			break
 		} else if err != nil {
-			fmt.Println("Error encontrado: ", err)
 			log.Errorf("action: lectura_batch | result: failure | error: %v",
 				err,
 			)
 		}
 		// Send bets batch
-		fmt.Println("Agencia", c.agency_number, "que envía batch de tamaño: ", len(next_batch))
 		err = SendBetsBatch(c.conn, next_batch, c.agency_number)
 		if err != nil {
-			fmt.Println("Error encontrado: ", err)
 			log.Errorf("action: apuestas_enviadas | result: fail | cantidad: %v",
 				len(next_batch),
 			)
 			return
 		}
 		// Receive response
-		fmt.Println("Agencia", c.agency_number, "espera respuesta")
 		resp, err := ReadServerResponse(c.conn)
-		fmt.Println("Agencia", c.agency_number, " recibió respuesta: ", resp)
 
 		if err != nil || resp.CommandType != agency_commands.Ok {
-			fmt.Println("Error encontrado: ", err)
 			log.Errorf("action: apuestas_enviadas | result: fail | cantidad: %v",
 				len(next_batch),
 			)
@@ -149,21 +139,17 @@ func (c *Client) StartClientLoop() {
 		)
 	}
 
-	fmt.Println("Agencia que terminó: ", c.agency_number)
-
 	// Send end of bets transmission
 	SendEndTxBets(c.conn, c.agency_number)
 
 	// Wait for winners
-	resp, err := ReadServerResponse(c.conn)
+	resp, _ := ReadServerResponse(c.conn)
 	if resp != nil && resp.CommandType == agency_commands.Winners {
 		winners_list := getWinnersCommand(resp)
 		log.Infof("action: consulta_ganadores | result: success | cant_ganadores: %v",
 			len(winners_list),
 		)
 	} else {
-		fmt.Println("Error al recibir ganadores: ", err)
-		fmt.Println("Mensaje de respuesta: ", resp)
 		log.Infof("action: consulta_ganadores | result: fail")
 	}
 }
