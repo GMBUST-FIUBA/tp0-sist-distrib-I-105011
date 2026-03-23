@@ -162,11 +162,10 @@ class Server:
         self._server_socket.listen(listen_backlog)
 
         # Create agencies workers to bet manager pipeline
-        self._manager = manager = multiprocessing.Manager()
-        self._bet_manager_pipe = manager.Queue()
+        self._bet_manager_pipe = multiprocessing.Queue()
 
         # Create pipes from bet manager to each worker
-        self._bet_manager_to_worker_pipes = {i: manager.Queue() for i in range(1, total_agencies + 1)}
+        self._bet_manager_to_worker_pipes = {i: multiprocessing.Queue() for i in range(1, total_agencies + 1)}
         bet_manager_tx_pipes_side = self._bet_manager_to_worker_pipes
 
         # Create bets manager process
