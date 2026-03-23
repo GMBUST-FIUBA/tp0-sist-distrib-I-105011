@@ -89,7 +89,9 @@ def agency_process(client_fd, bets_manager_rx_channel, bets_tx_channel, pipe_use
     logging.info(f"Agencia nueva creada para pipe {pipe_used}")
     while True:
         try:
+            logging.info(f"Agencia para pipe {pipe_used} espera datos")
             new_message = read_message(client_sock)
+            logging.info(f"Agencia para pipe {pipe_used} recibió {new_message}")
 
             # If client closes the connection
             if new_message is None:
