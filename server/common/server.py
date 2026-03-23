@@ -136,11 +136,11 @@ class Server:
             # If all agencies stopped sending bets, look for winners
             if len(self._agencies_ready) == self._total_agencies:
                 winners_by_agency = self._bet_manager.load_winners(self._total_agencies)
-                print("Los ganadores entre todos son: ", len(winners_by_agency))
 
                 # Send to all clients its winners
                 for agency, winners in winners_by_agency.items():
                     tx_socket = self._agencies_detected[agency]
+                    print(f"Para agencia {agency} se tienen {len(winners)} ganadores")
                     send_winners(tx_socket, winners)
         
         return command
