@@ -85,6 +85,7 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
 
 # Agency process
 def agency_process(client_sock, bets_manager_rx_channel, bets_tx_channel, pipe_used):
+    logging.info(f"Agencia nueva creada para pipe {pipe_used}")
     while True:
         try:
             new_message = read_message(client_sock)
@@ -92,6 +93,7 @@ def agency_process(client_sock, bets_manager_rx_channel, bets_tx_channel, pipe_u
             # If client closes the connection
             if new_message is None:
                 client_sock.close()
+                logging.info(f"Agencia para pipe {pipe_used} cierra")
                 break
 
             # Process bet
