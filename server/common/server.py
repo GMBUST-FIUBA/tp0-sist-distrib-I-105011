@@ -175,8 +175,7 @@ class Server:
         # Create bets manager process
         bets_manager_process = multiprocessing.Process(
             target=bet_manager_process, 
-            args=(bet_manager_tx_pipes_side, self._bet_manager_pipe, total_agencies),
-            error_callback=lambda e: logging.error(f"Worker crashed: {e}")
+            args=(bet_manager_tx_pipes_side, self._bet_manager_pipe, total_agencies)
         )
         bets_manager_process.start()
 
@@ -208,7 +207,8 @@ class Server:
         # Submit agency process
         self._thread_pool.apply_async(
             agency_process,
-            (reduced_c, self._bet_manager_pipe, self._bet_manager_to_worker_pipes[pipe_number][1], pipe_number)
+            (reduced_c, self._bet_manager_pipe, self._bet_manager_to_worker_pipes[pipe_number][1], pipe_number),
+            error_callback=lambda e: logging.error(f"Worker crashed: {e}")
         )
         self._total_connected_agencies += 1
 
