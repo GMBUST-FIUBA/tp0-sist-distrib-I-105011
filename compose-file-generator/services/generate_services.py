@@ -80,9 +80,9 @@ def _generate_server(total_clients):
         server = yaml.safe_load(file)
     
     # Add total of agencies
-    if ENVIRONMENT_DOCKER_COMPOSE_TAG not in server:
+    if ENVIRONMENT_DOCKER_COMPOSE_TAG not in server["server"]:
         server[ENVIRONMENT_DOCKER_COMPOSE_TAG] = []
     total_agencies_env_var = TOTAL_AGENCIES_SERVER_DOCKER_COMPOSE_TAG + str(total_clients)
-    server[ENVIRONMENT_DOCKER_COMPOSE_TAG].append(total_agencies_env_var)
+    server["server"][ENVIRONMENT_DOCKER_COMPOSE_TAG].append(total_agencies_env_var)
 
     return server
