@@ -155,14 +155,16 @@ func (c *Client) StartClientLoop() {
 	SendEndTxBets(c.conn, c.agency_number)
 
 	// Wait for winners
-	resp, _ := ReadServerResponse(c.conn)
+	resp, err := ReadServerResponse(c.conn)
 	if resp != nil && resp.CommandType == agency_commands.Winners {
 		winners_list := getWinnersCommand(resp)
 		log.Infof("action: consulta_ganadores | result: success | cant_ganadores: %v",
 			len(winners_list),
 		)
 	} else {
-		log.Infof("action: consulta_ganadores | result: failure")
+		log.Infof("action: consulta_ganadores | result: failure | error: %v",
+			err,
+		)
 	}
 }
 
