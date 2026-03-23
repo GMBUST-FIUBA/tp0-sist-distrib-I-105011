@@ -13,12 +13,15 @@ SHUTDOWM_RETRY_TIME = 0.1
 TOTAL_AGENCIES = 5
 
 class Server:
-    def __init__(self, port, listen_backlog):
+    def __init__(self, port, listen_backlog, total_agencies):
         # Initialize agencies that stopped to send bets
         self._agencies_ready = set()
 
         # Initialize agencies that are detected
         self._agencies_detected = {}
+
+        # Store total agencies
+        self._total_agencies = total_agencies
 
         # Initialize server socket
         self._server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -131,7 +134,7 @@ class Server:
             self._agencies_ready.add(agency)
             
             # If all agencies stopped sending bets, look for winners
-            if len(self._agencies_ready) == 3:
+            if len(self._agencies_ready) == self._total_agencies:
                 winners_by_agency = self._bet_manager.load_winners()
                 print("Los ganadores entre todos son: ", len(winners_by_agency))
 

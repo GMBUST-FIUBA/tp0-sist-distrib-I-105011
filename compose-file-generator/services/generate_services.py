@@ -20,8 +20,10 @@ VOLUMES_DOCKER_COMPOSE_TAG = "volumes"
 CLIENT_CLI_ID_DOCKER_COMPOSE_TAG = "CLI_ID="
 AGENCY_NUMBER_DOCKER_COMPOSE_TAG = "AGENCY="
 
+TOTAL_AGENCIES_SERVER_DOCKER_COMPOSE_TAG = "TOTAL_AGENCIES="
+
 def generate_services(total_clients):
-    server = _generate_server()
+    server = _generate_server(total_clients)
     clients = _generate_clients(total_clients)
 
     return {SERVICES_DOCKER_COMPOSE_TAG : server | clients}
@@ -72,7 +74,15 @@ def _generate_clients(total_clients):
 
     return clients
 
-def _generate_server():
+def _generate_server(total_clients):
+    # Load server base configuration
     with open(SERVER_FILE_PATH, "r") as file:
         server = yaml.safe_load(file)
+    
+    # Add total of agencies
+    if ENVIRONMENT_DOCKER_COMPOSE_TAG not in server:
+        server[ENVIRONMENT_DOCKER_COMPOSE_TAG] = []
+    total_agencies_env_var = TOTAL_AGENCIES_SERVER_DOCKER_COMPOSE_TAG + str(total_clients)
+    server[ENVIRONMENT_DOCKER_COMPOSE_TAG].append(total_agencies_env_var)
+
     return server

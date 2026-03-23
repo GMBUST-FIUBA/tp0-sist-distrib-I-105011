@@ -48,7 +48,8 @@ def main():
                   f"listen_backlog: {listen_backlog} | logging_level: {logging_level}")
 
     # Initialize server and start server loop
-    server = Server(port, listen_backlog)
+    total_agencies = int(os.getenv('TOTAL_AGENCIES'))
+    server = Server(port, listen_backlog, total_agencies)
     server.run()
 
 def initialize_log(logging_level):
