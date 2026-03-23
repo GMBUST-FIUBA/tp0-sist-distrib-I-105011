@@ -112,7 +112,7 @@ func (c *Client) StartClientLoop() {
 
 		fmt.Println("Agencia", c.agency_number, "lee nuevo batch")
 		next_batch, err := c.readNextBetsBatch()
-		if err == io.EOF {
+		if err == io.EOF && len(next_batch) == 0 {
 			continue_reading_batches = false
 		} else if err != nil {
 			fmt.Println("Error encontrado: ", err)
