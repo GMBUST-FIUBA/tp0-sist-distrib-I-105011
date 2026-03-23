@@ -156,7 +156,7 @@ func (c *Client) StartClientLoop() {
 
 	// Wait for winners
 	resp, _ := ReadServerResponse(c.conn)
-	if resp.CommandType == agency_commands.Winners {
+	if resp != nil && resp.CommandType == agency_commands.Winners {
 		winners_list := getWinnersCommand(resp)
 		log.Infof("action: consulta_ganadores | result: success | cant_ganadores: %v",
 			len(winners_list),
