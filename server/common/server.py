@@ -35,10 +35,12 @@ INTER_ACTOR_BET_POS = 1
 INTER_ACTOR_BATCH_POS = 1
 INTER_ACTOR_END_TX_POS = 1
 INTER_ACTOR_WINNERS_POS = 1
+INTER_ACTOR_PIPE_NUM_POS = 2
 
 def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies):
     bets_manager = BetManager()
     agencies_ready = set()
+    agency_to_pipe_translator = {}
 
     while True:
         msg_from_agency = agencies_rx_channel.recv()
@@ -47,6 +49,10 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
         if msg_type == InterActorsCommand.ADD_BET:
             # Get bet
             new_bet = msg_from_agency[INTER_ACTOR_BET_POS]
+            # Store pipe translation part
+            pipe_used = msg_from_agency[INTER_ACTOR_PIPE_NUM_POS]
+            if new_bet.agency not in agency_to_pipe_translator:
+                agency_to_pipe_translator[new_bet.agency] = pipe_used
             # Store bet
             bets_manager.store_bet_in_database()
             # Log result
@@ -54,6 +60,10 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
         elif msg_type == InterActorsCommand.ADD_BATCH:
             # Get batch
             new_bets = msg_from_agency[INTER_ACTOR_BATCH_POS]
+            # Store pipe translation part
+            pipe_used = msg_from_agency[INTER_ACTOR_PIPE_NUM_POS]
+            if new_bets[0].agency not in agency_to_pipe_translator:
+                agency_to_pipe_translator[new_bet.agency] = pipe_used
             # Store batch
             bets_manager.store_bets_batch(new_bets)
             # Log result
@@ -70,11 +80,12 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
 
                 # Send to all clients its winners
                 for agency, winners in winners_by_agency.items():
-                    tx_socket = agencies_tx_channel[agency]
+                    pipe_translation = agency_to_pipe_translator[agency]
+                    tx_socket = agencies_tx_channel[pipe_translation]
                     send_winners(tx_socket, winners)
 
 # Agency process
-def agency_process(client_sock, bets_manager_rx_channel, bets_tx_channel):
+def agency_process(client_sock, bets_manager_rx_channel, bets_tx_channel, pipe_used):
     while True:
         try:
             new_message = read_message(client_sock)
@@ -105,7 +116,7 @@ def agency_process(client_sock, bets_manager_rx_channel, bets_tx_channel):
         except Exception:
             client_sock.close()
 
-def __agency_process_message(message, client_socket, bets_manager_rx_channel, bets_tx_channel):
+def __agency_process_message(message, client_socket, bets_manager_rx_channel, bets_tx_channel, pipe_used):
         command = comm_protocol.identify_command(message)
 
         # Check type
@@ -113,19 +124,19 @@ def __agency_process_message(message, client_socket, bets_manager_rx_channel, be
             # Get new bet
             new_bet = create_new_bet(message)
             # Send to manager new bet
-            bets_tx_channel.send((InterActorsCommand.ADD_BET, new_bet))
+            bets_tx_channel.send((InterActorsCommand.ADD_BET, new_bet, pipe_used))
         elif command == comm_protocol.Command.ADD_BATCH:
             # Get bets batch
             new_bets = create_new_bets_batch(message)
             # Send to manager the batch
-            bets_tx_channel.send((InterActorsCommand.ADD_BET, new_bets))
+            bets_tx_channel.send((InterActorsCommand.ADD_BET, new_bets, pipe_used))
         elif command == comm_protocol.Command.END_TX:
             # Get agency that stopped
             agency = get_stopped_bet_sending_agency(message)
 
             # Send to manager the agency that stopped sending data
-            bets_tx_channel.send((InterActorsCommand.END_TX_BETS, agency))
-            
+            bets_tx_channel.send((InterActorsCommand.END_TX_BETS, agency, pipe_used))
+
             # When the winners are received, send them to agency
             response = bets_manager_rx_channel.recv()
             if response[INTER_ACTOR_COMMAND_POS] == InterActorsCommand.WINNERS:
@@ -186,11 +197,12 @@ class Server:
         # Connection arrived
         logging.info('action: accept_connections | result: in_progress')
         c, addr = self._server_socket.accept()
+        pipe_number = self._total_connected_agencies + 1
 
         # Submit agency process
         self._thread_pool.apply(
             agency_process,
-            (c, self._bet_manager_pipe, self._bet_manager_to_worker_pipes[self._total_connected_agencies+1][1])
+            (c, self._bet_manager_pipe, self._bet_manager_to_worker_pipes[pipe_number][1], pipe_number)
         )
         self._total_connected_agencies += 1
 
