@@ -43,7 +43,7 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
     agency_to_pipe_translator = {}
 
     while True:
-        msg_from_agency = agencies_rx_channel.recv()
+        msg_from_agency = agencies_rx_channel.get()
         msg_type = msg_from_agency[INTER_ACTOR_COMMAND_POS]
 
         if msg_type == InterActorsCommand.ADD_BET:
@@ -124,18 +124,18 @@ def __agency_process_message(message, client_socket, bets_manager_rx_channel, be
             # Get new bet
             new_bet = create_new_bet(message)
             # Send to manager new bet
-            bets_tx_channel.send((InterActorsCommand.ADD_BET, new_bet, pipe_used))
+            bets_tx_channel.put((InterActorsCommand.ADD_BET, new_bet, pipe_used))
         elif command == comm_protocol.Command.ADD_BATCH:
             # Get bets batch
             new_bets = create_new_bets_batch(message)
             # Send to manager the batch
-            bets_tx_channel.send((InterActorsCommand.ADD_BET, new_bets, pipe_used))
+            bets_tx_channel.put((InterActorsCommand.ADD_BET, new_bets, pipe_used))
         elif command == comm_protocol.Command.END_TX:
             # Get agency that stopped
             agency = get_stopped_bet_sending_agency(message)
 
             # Send to manager the agency that stopped sending data
-            bets_tx_channel.send((InterActorsCommand.END_TX_BETS, agency, pipe_used))
+            bets_tx_channel.put((InterActorsCommand.END_TX_BETS, agency, pipe_used))
 
             # When the winners are received, send them to agency
             response = bets_manager_rx_channel.recv()
