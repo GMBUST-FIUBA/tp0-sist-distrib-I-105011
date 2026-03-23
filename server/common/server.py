@@ -136,9 +136,8 @@ class Server:
 
                 # Send to all clients its winners
                 for agency, winners in winners_by_agency.items():
-                    socket = self._agencies_detected[agency]
-                    send_winners(self._agencies_detected[agency], winners)
-                    self._selector.unregister(socket)
+                    tx_socket = self._agencies_detected[agency]
+                    send_winners(tx_socket, winners)
         
         return command
 
