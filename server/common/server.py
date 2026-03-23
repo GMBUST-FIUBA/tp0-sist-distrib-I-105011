@@ -61,9 +61,7 @@ class Server:
             try:
                 command = self.__process_message(new_message, client_sock)
 
-                if command == Command.END_TX:
-                    self.__close_client(client_sock)
-                else:
+                if command != Command.END_TX:
                     send_message(client_sock, response)
             except WrongBatchException as e:
                 response = str(e)
