@@ -36,8 +36,11 @@ const NOT_VALID_DOCUMENT_ERR_MSG = "NOT_VALID_DNI"
 const ADD_BET_MSG_HEADER = "ADD "
 const ADD_BETS_BATCH_MSG_HEADER = "ADDB"
 
-// End of transmission
+// End of bets transmission
 const END_OF_BETS_HEADER = "END "
+
+// Winners from server
+const WINNERS_HEADER = "WIN "
 
 // Header length in bytes
 const TOTAL_MSG_HEADER_BYTES = 2
@@ -172,7 +175,7 @@ func processServerResponse(content []byte) (*agency_commands.AgencyCommand, erro
 	// Check type
 	msg_type := string(content[0:4])
 	msg_content := content[4:]
-	if msg_type == END_OF_BETS_HEADER {
+	if msg_type == WINNERS_HEADER {
 		return agency_commands.NewWinnersCommand(msg_content), nil
 	}
 	// Check error type
