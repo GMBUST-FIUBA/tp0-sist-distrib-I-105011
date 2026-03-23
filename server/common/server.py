@@ -163,7 +163,7 @@ class Server:
         self._server_socket.listen(listen_backlog)
 
         # Create agencies workers to bet manager pipeline
-        manager = multiprocessing.Manager()
+        self._manager = manager = multiprocessing.Manager()
         self._bet_manager_pipe = manager.Queue()
 
         # Create pipes from bet manager to each worker
@@ -207,7 +207,7 @@ class Server:
         # Submit agency process
         self._thread_pool.apply_async(
             agency_process,
-            (fd, self._bet_manager_pipe, self._bet_manager_to_worker_pipes[pipe_number][1], pipe_number),
+            (fd, self._bet_manager_pipe, self._bet_manager_to_worker_pipes[pipe_number], pipe_number),
             error_callback=lambda e: logging.error(f"Worker crashed: {e}")
         )
         self._total_connected_agencies += 1
