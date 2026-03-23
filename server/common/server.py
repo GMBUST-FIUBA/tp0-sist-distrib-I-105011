@@ -137,7 +137,7 @@ def __agency_process_message(message, client_socket, bets_manager_rx_channel, be
             # Get bets batch
             new_bets = create_new_bets_batch(message)
             # Send to manager the batch
-            bets_tx_channel.put((InterActorsCommand.ADD_BET, new_bets, pipe_used))
+            bets_tx_channel.put((InterActorsCommand.ADD_BATCH, new_bets, pipe_used))
         elif command == comm_protocol.Command.END_TX:
             logging.info(f"Agencia para pipe {pipe_used} recibe fin de recepción de apuestas")
             # Get agency that stopped
