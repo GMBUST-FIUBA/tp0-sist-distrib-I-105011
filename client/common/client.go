@@ -162,9 +162,9 @@ func (c *Client) StartClientLoop() {
 			len(winners_list),
 		)
 	} else {
-		log.Infof("action: consulta_ganadores | result: failure | error: %v",
-			err,
-		)
+		log.Infof("action: consulta_ganadores | result: failure")
+		fmt.Println("Error al recibir ganadores: ", err)
+		fmt.Println("Mensaje de respuesta: ", resp)
 	}
 }
 
