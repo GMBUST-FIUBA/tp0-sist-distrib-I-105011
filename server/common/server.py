@@ -204,7 +204,6 @@ class Server:
         new_process = multiprocessing.Process(
             agency_process,
             (c.fileno(), self._bet_manager_pipe, self._bet_manager_to_worker_pipes[pipe_number], pipe_number),
-            error_callback=lambda e: logging.error(f"Worker crashed: {e}")
         )
         new_process.start()
         c.close()
