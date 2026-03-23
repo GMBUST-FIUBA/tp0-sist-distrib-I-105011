@@ -45,8 +45,11 @@ const END_OF_BETS_MSG_HEADER = "E"
 // Winners from server
 const WINNERS_MSG_HEADER = "W"
 
-// End of transmission
+// End of bets transmission
 const END_OF_BETS_HEADER = "END "
+
+// Winners from server
+const WINNERS_HEADER = "WIN "
 
 // Header length in bytes
 const TOTAL_MSG_HEADER_BYTES = 2
