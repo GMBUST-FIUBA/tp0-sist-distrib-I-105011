@@ -54,21 +54,11 @@ class BetManager:
             raise errors.NotValidBetNumberException()
 
         # Store bet in manager and database
-        if new_bet.number not in self.staged_bets_numbers:
+        if new_bet.document not in self.staged_bets:
+            self.staged_bets[new_bet.document] = {}
 
-            if new_bet.document not in self.staged_bets:
-                self.staged_bets[new_bet.document] = {}
-
-            # Stage bets
-            self.staged_bets[new_bet.document][new_bet.number] = new_bet
-            self.staged_bets_numbers.add(new_bet.number)
-
-        elif new_bet.document in self.staged_bets:
-            # Raise exception depending if the client already used the number or not
-            if new_bet.number in self.staged_bets[new_bet.document]:
-                raise errors.RepeatedBetException()
-            else:
-                raise errors.AlreadyUsedNumberException()
+        # Stage bets
+        self.staged_bets[new_bet.document][new_bet.number] = new_bet
 
     def __store_staged_bets(self):
         # Store bets in memory
@@ -79,7 +69,6 @@ class BetManager:
         self.__erase_staged_bets()
 
     def __erase_staged_bets(self):
-        self.staged_bets_numbers = set()
         self.staged_bets = {}
 
     def load_winners(self, total_agencies):
