@@ -168,7 +168,6 @@ func ReadServerResponse(socket net.Conn) (*agency_commands.AgencyCommand, error)
 
 // Generate error according to response or nil if it is ok
 func processServerResponse(content []byte) (*agency_commands.AgencyCommand, error) {
-	print("Response a procesar: ", content)
 	if bytes.Equal(content, []byte(OK_MESSAGE)) {
 		return agency_commands.NewOkCommand(), nil
 	}

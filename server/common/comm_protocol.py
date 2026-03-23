@@ -180,7 +180,5 @@ def send_winners(tx_socket, winners_docs):
     for doc in winners_docs:
         encoded_message.extend(int(doc).to_bytes(TOTAL_BYTES_WINNER_DOCUMENT, "big"))
 
-    print(f"Mensaje de ganadores a mandar: {encoded_message}")
-
     # Send message
     tx_socket.sendall(encoded_message)

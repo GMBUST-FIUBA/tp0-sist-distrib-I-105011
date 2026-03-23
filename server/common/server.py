@@ -110,19 +110,15 @@ class Server:
         sys.exit(0)
 
     def __process_message(self, message, client_socket):
-        print(f"Mensaje a analizar: {message}")
-        
         command = comm_protocol.identify_command(message)
 
         # Check type
         if command == comm_protocol.Command.ADD_BET:
-            print(f"Agrego apuesta: ", message)
             new_bet = create_new_bet(message)
             self._bet_manager.store_bet_in_database(new_bet)
             self.__log_agency(new_bet.agency, client_socket)
             logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
         elif command == comm_protocol.Command.ADD_BATCH:
-            print(f"Agrego batch: ", len(message))
             new_bets = create_new_bets_batch(message)
             self._bet_manager.store_bets_batch(new_bets)
             self.__log_agency(new_bets[0].agency, client_socket)
@@ -140,7 +136,6 @@ class Server:
                 # Send to all clients its winners
                 for agency, winners in winners_by_agency.items():
                     tx_socket = self._agencies_detected[agency]
-                    print(f"Para agencia {agency} se tienen {len(winners)} ganadores")
                     send_winners(tx_socket, winners)
         
         return command
