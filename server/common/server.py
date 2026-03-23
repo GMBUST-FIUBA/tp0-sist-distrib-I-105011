@@ -86,8 +86,8 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
                     send_winners(tx_socket, winners)
 
 # Agency process
-def agency_process(reduced_client_socket, bets_manager_rx_channel, bets_tx_channel, pipe_used):
-    client_sock = ForkingPickler.loads(reduced_client_socket)
+def agency_process(client_fd, bets_manager_rx_channel, bets_tx_channel, pipe_used):
+    client_sock = socket.socket(fileno=client_fd)
     logging.info(f"Agencia nueva creada para pipe {pipe_used}")
     while True:
         try:
@@ -202,12 +202,14 @@ class Server:
         logging.info('action: accept_connections | result: in_progress')
         c, addr = self._server_socket.accept()
         pipe_number = self._total_connected_agencies + 1
-        reduced_c = ForkingPickler.dumps(c)
+        
+        fd = c.fileno()
+        c.detach()
 
         # Submit agency process
         self._thread_pool.apply_async(
             agency_process,
-            (reduced_c, self._bet_manager_pipe, self._bet_manager_to_worker_pipes[pipe_number][1], pipe_number),
+            (fd, self._bet_manager_pipe, self._bet_manager_to_worker_pipes[pipe_number][1], pipe_number),
             error_callback=lambda e: logging.error(f"Worker crashed: {e}")
         )
         self._total_connected_agencies += 1
