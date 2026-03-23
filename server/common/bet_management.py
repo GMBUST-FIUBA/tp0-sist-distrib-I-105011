@@ -82,14 +82,15 @@ class BetManager:
         self.staged_bets_numbers = set()
         self.staged_bets = {}
 
-    def load_winners(self):
+    def load_winners(self, total_agencies):
         all_bets = load_bets()
-        winners = {}
 
+        # Set empty lists for winners
+        winners = { agency : [] for agency in range(1, total_agencies + 1) }
+
+        # Store all winners
         for bet in all_bets:
             if has_won(bet):
-                if bet.agency not in winners:
-                    winners[bet.agency] = []
                 winners[bet.agency].append(bet.document)
 
         return winners
