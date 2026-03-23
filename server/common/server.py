@@ -8,7 +8,6 @@ import signal
 import sys
 import time
 import multiprocessing
-from multiprocessing.reduction import ForkingPickler
 
 SHUTDOWM_RETRY_TIME = 0.1
 TOTAL_AGENCIES = 5
@@ -200,16 +199,15 @@ class Server:
         logging.info('action: accept_connections | result: in_progress')
         c, addr = self._server_socket.accept()
         pipe_number = self._total_connected_agencies + 1
-        
-        fd = c.fileno()
-        c.detach()
 
         # Submit agency process
-        self._thread_pool.apply_async(
+        new_process = multiprocessing.Process(
             agency_process,
-            (fd, self._bet_manager_pipe, self._bet_manager_to_worker_pipes[pipe_number], pipe_number),
+            (c.fileno(), self._bet_manager_pipe, self._bet_manager_to_worker_pipes[pipe_number], pipe_number),
             error_callback=lambda e: logging.error(f"Worker crashed: {e}")
         )
+        new_process.start()
+        c.close()
         self._total_connected_agencies += 1
 
         logging.info(f'action: accept_connections | result: success | ip: {addr[0]}')
