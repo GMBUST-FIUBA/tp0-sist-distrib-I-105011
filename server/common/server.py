@@ -74,7 +74,7 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
                     send_winners(tx_socket, winners)
 
 # Agency process
-def agency_process(client_sock, winners_rx_channel, bets_tx_channel):
+def agency_process(client_sock, bets_manager_rx_channel, bets_tx_channel):
     while True:
         try:
             new_message = read_message(client_sock)
@@ -87,7 +87,7 @@ def agency_process(client_sock, winners_rx_channel, bets_tx_channel):
             # Process bet
             response = OK_MESSAGE
             try:
-                command = __agency_process_message(new_message, client_sock)
+                command = __agency_process_message(new_message, client_sock, bets_manager_rx_channel, bets_tx_channel)
 
                 if command != Command.END_TX:
                     send_message(client_sock, response)
@@ -95,41 +95,42 @@ def agency_process(client_sock, winners_rx_channel, bets_tx_channel):
             except WrongBatchException as e:
                 response = str(e)
                 send_message(client_sock, response)
+                raise e
             except Exception as e:
                 response = str(e)
                 send_message(client_sock, response)
                 logging.error(f"action: apuesta_almacenada | result: fail | error: {e}")
+                raise e
 
         except Exception:
             client_sock.close()
 
-def __agency_process_message(self, message, client_socket):
+def __agency_process_message(message, client_socket, bets_manager_rx_channel, bets_tx_channel):
         command = comm_protocol.identify_command(message)
 
         # Check type
         if command == comm_protocol.Command.ADD_BET:
+            # Get new bet
             new_bet = create_new_bet(message)
-            self._bet_manager.store_bet_in_database(new_bet)
-            logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
+            # Send to manager new bet
+            bets_tx_channel.send((InterActorsCommand.ADD_BET, new_bet))
         elif command == comm_protocol.Command.ADD_BATCH:
+            # Get bets batch
             new_bets = create_new_bets_batch(message)
-            self._bet_manager.store_bets_batch(new_bets)
-            logging.info(f'action: apuesta_recibida | result: success | cantidad: {len(new_bets)}')
+            # Send to manager the batch
+            bets_tx_channel.send((InterActorsCommand.ADD_BET, new_bets))
         elif command == comm_protocol.Command.END_TX:
+            # Get agency that stopped
             agency = get_stopped_bet_sending_agency(message)
 
-            # Store agency that stopped sending data
-            self._agencies_ready.add(agency)
+            # Send to manager the agency that stopped sending data
+            bets_tx_channel.send((InterActorsCommand.END_TX_BETS, agency))
             
-            # If all agencies stopped sending bets, look for winners
-            if len(self._agencies_ready) == self._total_agencies:
-                winners_by_agency = self._bet_manager.load_winners(self._total_agencies)
+            # When the winners are received, send them to agency
+            response = bets_manager_rx_channel.recv()
+            if response[INTER_ACTOR_COMMAND_POS] == InterActorsCommand.WINNERS:
+                send_winners(client_socket, response[INTER_ACTOR_WINNERS_POS])
 
-                # Send to all clients its winners
-                for agency, winners in winners_by_agency.items():
-                    tx_socket = self._agencies_detected[agency]
-                    send_winners(tx_socket, winners)
-        
         return command
 
 # Server class
