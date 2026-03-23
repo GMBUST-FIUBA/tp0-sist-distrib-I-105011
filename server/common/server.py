@@ -43,7 +43,7 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
 
     while True:
         msg_from_agency = agencies_rx_channel.get()
-        logging.info(f"Mensaje recibido {msg_from_agency}")
+        logging.info(f"Admin de apuestas recibe {msg_from_agency}")
         msg_type = msg_from_agency[INTER_ACTOR_COMMAND_POS]
 
         if msg_type == InterActorsCommand.ADD_BET:
