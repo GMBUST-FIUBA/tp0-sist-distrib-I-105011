@@ -115,8 +115,9 @@ def agency_process(client_fd, bets_manager_rx_channel, bets_tx_channel, pipe_use
                 logging.error(f"action: apuesta_almacenada | result: fail | error: {e}")
                 raise e
 
-        except Exception:
+        except Exception as e:
             client_sock.close()
+            logging.error(f"Agencia para pipe {pipe_used} cierra")
 
 def __agency_process_message(message, client_socket, bets_manager_rx_channel, bets_tx_channel, pipe_used):
         command = comm_protocol.identify_command(message)
