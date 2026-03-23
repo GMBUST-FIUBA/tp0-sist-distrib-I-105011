@@ -8,6 +8,7 @@ import signal
 import sys
 import time
 import multiprocessing
+from multiprocessing.reduction import ForkingPickler
 
 SHUTDOWM_RETRY_TIME = 0.1
 TOTAL_AGENCIES = 5
@@ -61,8 +62,9 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
             new_bets = msg_from_agency[INTER_ACTOR_BATCH_POS]
             # Store pipe translation part
             pipe_used = msg_from_agency[INTER_ACTOR_PIPE_NUM_POS]
-            if new_bets[0].agency not in agency_to_pipe_translator:
-                agency_to_pipe_translator[new_bet.agency] = pipe_used
+            agency_id = new_bets[0].agency
+            if agency_id not in agency_to_pipe_translator:
+                agency_to_pipe_translator[agency_id] = pipe_used
             # Store batch
             bets_manager.store_bets_batch(new_bets)
             # Log result
@@ -84,7 +86,8 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
                     send_winners(tx_socket, winners)
 
 # Agency process
-def agency_process(client_sock, bets_manager_rx_channel, bets_tx_channel, pipe_used):
+def agency_process(reduced_client_socket, bets_manager_rx_channel, bets_tx_channel, pipe_used):
+    client_sock = ForkingPickler.loads(reduced_client_socket)
     logging.info(f"Agencia nueva creada para pipe {pipe_used}")
     while True:
         try:
@@ -199,6 +202,7 @@ class Server:
         logging.info('action: accept_connections | result: in_progress')
         c, addr = self._server_socket.accept()
         pipe_number = self._total_connected_agencies + 1
+        reduced_c = ForkingPickler.dumps(c)
 
         # Submit agency process
         self._thread_pool.apply_async(
