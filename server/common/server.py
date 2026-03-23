@@ -120,6 +120,9 @@ class Server:
             logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
         elif command == comm_protocol.Command.ADD_BATCH:
             new_bets = create_new_bets_batch(message)
+            if not new_bets:
+                logging.warning("Se recibió un batch vacío o inválido")
+                return command
             self._bet_manager.store_bets_batch(new_bets)
             self.__log_agency(new_bets[0].agency, client_socket)
             logging.info(f'action: apuesta_recibida | result: success | cantidad: {len(new_bets)}')
