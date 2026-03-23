@@ -206,7 +206,7 @@ class Server:
         # Submit agency process
         new_process = multiprocessing.Process(
             target=agency_process,
-            args=(c.fileno(), self._bet_manager_pipe, self._bet_manager_to_worker_pipes[pipe_number], pipe_number),
+            args=(c.fileno(), self._bet_manager_to_worker_pipes[pipe_number], self._bet_manager_pipe, pipe_number),
         )
         new_process.start()
         c.close()
