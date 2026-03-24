@@ -33,11 +33,8 @@ const NOT_VALID_DOCUMENT_ERR_TYPE = 5
 // Add bet header message
 const ADD_BET_MSG_HEADER = "A"
 
-// End of bets transmission
-const END_OF_BETS_HEADER = "END "
-
-// Winners from server
-const WINNERS_HEADER = "WIN "
+// Add bets batch header message
+const ADD_BETS_BATCH_MSG_HEADER = "B"
 
 // Header length in bytes
 const TOTAL_MSG_HEADER_BYTES = 2
