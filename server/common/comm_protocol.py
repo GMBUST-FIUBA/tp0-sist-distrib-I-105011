@@ -42,23 +42,7 @@ command_header_to_enum = {
     ADD_BETS_BATCH_COMM_TYPE: Command.ADD_BATCH,
 }
 
-# Read command from socket
-def read_command(rx_socket):
-    message = comm_protocol.read_message(rx_socket)
-
-command_header_to_enum = {
-    ADD_BET_HEADER: Command.ADD_BET,
-    ADD_BETS_BATCH_HEADER: Command.ADD_BATCH,
-}
-
-def identify_command(message):
-    message_header = message[0:4].decode("utf-8", errors="ignore")
-
-    if message_header not in command_header_to_enum:
-        return None
-
-    parsed_message = _parse_message_single_bet(message)
-
+# Identify commands
 def identify_command(message):
     message_header = message[0]
 
