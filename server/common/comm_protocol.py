@@ -8,13 +8,13 @@ from . import comm_protocol
 TOTAL_MESSAGE_SIZE_BYTES = 2
 
 # Add bet header
-ADD_BET_HEADER = "ADD "
+ADD_BET_COMM_TYPE = 65
 
 # Add batch of bets header
 ADD_BETS_BATCH_HEADER = "ADDB"
 
 # Correctly processed bet
-OK_MESSAGE = "OK"
+OK_COMM_TYPE = 0
 
 # Add single bet message parts positions
 BET_CLIENT_FIRST_NAME_MSG_POS = 0
@@ -63,9 +63,17 @@ def create_new_bet(message):
 
     return new_bet
 
-def _parse_message_single_bet(message):
-    message = message.decode("utf-8", errors="ignore")
-    message = message.removeprefix(ADD_BET_HEADER)
+def _parse_message(message):
+    # Separate message parts
+    command_type = message[0]
+    data = message[1:]
+
+    # Check command type
+    if command_type != ADD_BET_COMM_TYPE:
+        return None
+    
+    # Decode data
+    message = data.decode("utf-8", errors="ignore")
     split_message = message.split(',')
     return split_message
 
@@ -141,13 +149,12 @@ def __read_n_bytes(rx_socket, n_bytes):
 
 # Sends message according to protocol defined on Readme.
 def send_message(tx_socket, message):
-    content = message.encode("utf-8", errors="ignore")
-    header = len(message)
+    header = 1
 
     # Append header and content
     encoded_message = bytearray()
     encoded_message.extend(header.to_bytes(TOTAL_MESSAGE_SIZE_BYTES, "big"))
-    encoded_message.extend(content)
+    encoded_message.extend(message.to_bytes(1, "big"))
 
     # Send message
     tx_socket.sendall(encoded_message)

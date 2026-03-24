@@ -53,7 +53,7 @@ class Server:
                 return
 
             # Process bet
-            response = OK_MESSAGE
+            message = OK_COMM_TYPE
             try:
                 self.__process_message(new_message)
             except WrongBatchException as e:
