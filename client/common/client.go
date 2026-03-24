@@ -3,6 +3,7 @@ package common
 import (
 	"encoding/binary"
 	"encoding/csv"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -143,13 +144,14 @@ func (c *Client) StartClientLoop() {
 	SendEndTxBets(c.conn, c.agency_number)
 
 	// Wait for winners
-	resp, _ := ReadServerResponse(c.conn)
+	resp, err := ReadServerResponse(c.conn)
 	if resp != nil && resp.CommandType == agency_commands.Winners {
 		winners_list := getWinnersCommand(resp)
 		log.Infof("action: consulta_ganadores | result: success | cant_ganadores: %v",
 			len(winners_list),
 		)
 	} else {
+		fmt.Println("Error: ", err)
 		log.Infof("action: consulta_ganadores | result: fail")
 	}
 }
