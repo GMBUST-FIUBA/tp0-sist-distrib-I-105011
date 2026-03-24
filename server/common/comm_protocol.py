@@ -14,13 +14,13 @@ ADD_BET_COMM_TYPE = 65
 ADD_BETS_BATCH_COMM_TYPE = 66
 
 # End bets transmission
-END_BETS_TX_HEADER = "END "
+END_BETS_TX_COMM_TYPE = 69
 
 # Correctly processed bet
 OK_COMM_TYPE = 0
 
 # Winners message header
-WINNERS_HEADER = "WIN "
+WINNERS_COMM_TYPE = 87
 
 # Add single bet message parts positions
 BET_CLIENT_FIRST_NAME_MSG_POS = 0
@@ -174,8 +174,8 @@ TOTAL_BYTES_WINNER_DOCUMENT = 4
 
 # Send winners to agency
 def send_winners(tx_socket, winners_docs):
-    message = WINNERS_HEADER.encode("utf-8", errors="ignore")
-    header = len(message) + TOTAL_BYTES_WINNER_DOCUMENT * len(winners_docs)
+    message = WINNERS_COMM_TYPE
+    header = 1 + TOTAL_BYTES_WINNER_DOCUMENT * len(winners_docs)
 
     # Append content to header
     encoded_message = bytearray()
