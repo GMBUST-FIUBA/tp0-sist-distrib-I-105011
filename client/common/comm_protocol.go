@@ -5,11 +5,10 @@ import (
 	"encoding/binary"
 	"io"
 	"net"
-	"strings"
 )
 
 // Ok message
-const OK_MESSAGE = "OK"
+const OK_MESSAGE = 0
 
 // Errors messages for logs
 const LOG_SOCKET_ERROR_MSG = "Socket error"
@@ -19,18 +18,16 @@ const LOG_REPEATED_BET_ERROR_MSG = "Repeated bet"
 const LOG_NOT_VALID_BET_NUMBER_ERROR_MSG = "Not valid bet number"
 const LOG_NOT_VALID_DOC_ERROR_MSG = "Not valid document"
 
-// Error prefix
-const ERROR_MESSAGE_PREFIX = "ERR "
 
-// Error messages
-const NOT_ADULT_CLIENT_ERR_MSG = "NOT_ADULT"
-const NUMBER_TAKEN_ERR_MSG = "NUMBER_TAKEN"
-const REPEATED_BET_ERR_MSG = "REPEATED_BET"
-const NOT_VALID_NUMBER_ERR_MSG = "NOT_VALID_NUMBER"
-const NOT_VALID_DOCUMENT_ERR_MSG = "NOT_VALID_DNI"
+// Error types
+const NOT_ADULT_CLIENT_ERR_TYPE = 1
+const NUMBER_TAKEN_ERR_TYPE = 2
+const REPEATED_BET_ERR_TYPE = 3
+const NOT_VALID_NUMBER_ERR_TYPE = 4
+const NOT_VALID_DOCUMENT_ERR_TYPE = 5
 
 // Add bet header message
-const ADD_BET_MSG_HEADER = "ADD "
+const ADD_BET_MSG_HEADER = "A"
 
 // Header length in bytes
 const TOTAL_MSG_HEADER_BYTES = 2
@@ -90,26 +87,27 @@ func ReadServerResponse(socket net.Conn) error {
 }
 
 // Generate error according to response or nil if it is ok
-func processServerResponse(content string) error {
-	if content == OK_MESSAGE {
+func processServerResponse(content []byte) error {
+	command_type := content[0]
+
+	if command_type == OK_MESSAGE {
 		return nil
 	}
 	// Check error type
-	err_message := strings.TrimPrefix(content, ERROR_MESSAGE_PREFIX)
-	switch err_message {
-	case NOT_ADULT_CLIENT_ERR_MSG:
-		return client_errors.NewNotAdultClientError(LOG_NOT_ADULT_ERROR_MSG)
-	case NUMBER_TAKEN_ERR_MSG:
-		return client_errors.NewTakenNumberError(LOG_BET_NUMBER_TAKEN_ERROR_MSG)
-	case REPEATED_BET_ERR_MSG:
-		return client_errors.NewRepeatedBetError(LOG_REPEATED_BET_ERROR_MSG)
-	case NOT_VALID_NUMBER_ERR_MSG:
-		return client_errors.NewNotValidNumberError(LOG_NOT_VALID_BET_NUMBER_ERROR_MSG)
-	case NOT_VALID_DOCUMENT_ERR_MSG:
-		return client_errors.NewNotValidDocumentError(LOG_NOT_VALID_DOC_ERROR_MSG)
-	default:
-		return client_errors.NewDefaultError(err_message)
+	var error_received error
+	switch command_type {
+	case NOT_ADULT_CLIENT_ERR_TYPE:
+		error_received = client_errors.NewNotAdultClientError(LOG_NOT_ADULT_ERROR_MSG)
+	case NUMBER_TAKEN_ERR_TYPE:
+		error_received = client_errors.NewTakenNumberError(LOG_BET_NUMBER_TAKEN_ERROR_MSG)
+	case REPEATED_BET_ERR_TYPE:
+		error_received = client_errors.NewRepeatedBetError(LOG_REPEATED_BET_ERROR_MSG)
+	case NOT_VALID_NUMBER_ERR_TYPE:
+		error_received = client_errors.NewNotValidNumberError(LOG_NOT_VALID_BET_NUMBER_ERROR_MSG)
+	case NOT_VALID_DOCUMENT_ERR_TYPE:
+		error_received = client_errors.NewNotValidDocumentError(LOG_NOT_VALID_DOC_ERROR_MSG)
 	}
+	return error_received
 }
 
 // Receive bytes from server
@@ -124,13 +122,13 @@ func readMessageHeader(socket net.Conn) (uint16, error) {
 	return message_size, nil
 }
 
-func readMessageContent(socket net.Conn, total_bytes uint16) (string, error) {
+func readMessageContent(socket net.Conn, total_bytes uint16) ([]byte, error) {
 	buffer := make([]byte, total_bytes)
 
 	// Read all bytes expected
 	_, err := io.ReadFull(socket, buffer)
 	if err != nil {
-		return "", client_errors.NewCommunicationError(LOG_SOCKET_ERROR_MSG)
+		return nil, client_errors.NewCommunicationError(LOG_SOCKET_ERROR_MSG)
 	}
-	return string(buffer), nil
+	return buffer, nil
 }

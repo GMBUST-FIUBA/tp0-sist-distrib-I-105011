@@ -1,5 +1,5 @@
 from .bet_management import BetManager
-from .comm_protocol import read_new_bet, send_message, OK_MESSAGE
+from .comm_protocol import read_new_bet, send_message, OK_COMM_TYPE
 
 import socket
 import logging
@@ -52,7 +52,7 @@ class Server:
                 return
 
             # Process bet
-            message = OK_MESSAGE
+            message = OK_COMM_TYPE
             try:
                 self._bet_manager.store_bets_in_database(new_bet)
                 logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
