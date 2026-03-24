@@ -11,7 +11,7 @@ TOTAL_MESSAGE_SIZE_BYTES = 2
 ADD_BET_COMM_TYPE = 65
 
 # Add batch of bets header
-ADD_BETS_BATCH_HEADER = "ADDB"
+ADD_BETS_BATCH_COMM_TYPE = "ADDB"
 
 # End bets transmission
 END_BETS_TX_HEADER = "END "
