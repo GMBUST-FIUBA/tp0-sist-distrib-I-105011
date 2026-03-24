@@ -257,7 +257,7 @@ No es correcto realizar un broadcast de todos los ganadores hacia todas las agen
 #### Resolución de ejercicio 7
 
 ##### Modificación al protocolo
-Se agrega un nuevo comando `END ${AGENCIA}` donde *AGENCIA* es el identificador del local de lotería. Este comando indica que ya no se van a enviar más apuestas y que se espera al ganador. La respuesta a este comando es la lista de ganadores, que solo se tendrá una vez que se hayan obtenido todas las apuestas de todas las demás agencias. La respuesta tendrá la forma `WIN <DNI_1><DNI_2>...<DNI_N>` donde *DNI_i* es el DNI de un ganador del sorteo, que se representa con un número de 4 bytes.
+Se agrega un nuevo comando `<END>${AGENCIA}` donde *AGENCIA* es el identificador del local de lotería y _END_ es el valor del tipo de comando que se define es el valor ASCII de _E_. Este comando indica que ya no se van a enviar más apuestas y que se espera al ganador. La respuesta a este comando es la lista de ganadores, que solo se tendrá una vez que se hayan obtenido todas las apuestas de todas las demás agencias. La respuesta tendrá la forma `<WIN><DNI_1><DNI_2>...<DNI_N>` donde *DNI_i* es el DNI de un ganador del sorteo, que se representa con un número de 4 bytes y donde *WIN* es el valor ASCII de _W_ para determinar el tipo de comando.
 
 
 ## Parte 3: Repaso de Concurrencia
