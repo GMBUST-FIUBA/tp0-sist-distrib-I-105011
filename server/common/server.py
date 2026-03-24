@@ -128,6 +128,7 @@ class Server:
 
             # Store agency that stopped sending data
             self._agencies_ready.add(agency)
+            print("Nueva agencia agregada")
             
             # If all agencies stopped sending bets, look for winners
             if len(self._agencies_ready) == self._total_agencies:
