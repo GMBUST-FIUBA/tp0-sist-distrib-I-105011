@@ -12,7 +12,7 @@ import (
 )
 
 // Ok message
-const OK_MESSAGE = "OK"
+const OK_MESSAGE = 0
 
 // Errors messages for logs
 const LOG_SOCKET_ERROR_MSG = "Socket error"
@@ -22,19 +22,16 @@ const LOG_REPEATED_BET_ERROR_MSG = "Repeated bet"
 const LOG_NOT_VALID_BET_NUMBER_ERROR_MSG = "Not valid bet number"
 const LOG_NOT_VALID_DOC_ERROR_MSG = "Not valid document"
 
-// Error prefix
-const ERROR_MESSAGE_PREFIX = "ERR "
 
-// Error messages
-const NOT_ADULT_CLIENT_ERR_MSG = "NOT_ADULT"
-const NUMBER_TAKEN_ERR_MSG = "NUMBER_TAKEN"
-const REPEATED_BET_ERR_MSG = "REPEATED_BET"
-const NOT_VALID_NUMBER_ERR_MSG = "NOT_VALID_NUMBER"
-const NOT_VALID_DOCUMENT_ERR_MSG = "NOT_VALID_DNI"
+// Error types
+const NOT_ADULT_CLIENT_ERR_TYPE = 1
+const NUMBER_TAKEN_ERR_TYPE = 2
+const REPEATED_BET_ERR_TYPE = 3
+const NOT_VALID_NUMBER_ERR_TYPE = 4
+const NOT_VALID_DOCUMENT_ERR_TYPE = 5
 
 // Add bet header message
-const ADD_BET_MSG_HEADER = "ADD "
-const ADD_BETS_BATCH_MSG_HEADER = "ADDB"
+const ADD_BET_MSG_HEADER = "A"
 
 // End of bets transmission
 const END_OF_BETS_HEADER = "END "
@@ -167,32 +164,27 @@ func ReadServerResponse(socket net.Conn) (*agency_commands.AgencyCommand, error)
 }
 
 // Generate error according to response or nil if it is ok
-func processServerResponse(content []byte) (*agency_commands.AgencyCommand, error) {
-	if bytes.Equal(content, []byte(OK_MESSAGE)) {
-		return agency_commands.NewOkCommand(), nil
-	}
-	// Check type
-	msg_type := string(content[0:4])
-	msg_content := content[4:]
-	if msg_type == WINNERS_HEADER {
-		return agency_commands.NewWinnersCommand(msg_content), nil
+func processServerResponse(content []byte) error {
+	command_type := content[0]
+
+	if command_type == OK_MESSAGE {
+		return nil
 	}
 	// Check error type
-	err_message := string(msg_content)
-	switch err_message {
-	case NOT_ADULT_CLIENT_ERR_MSG:
-		return nil, client_errors.NewNotAdultClientError(LOG_NOT_ADULT_ERROR_MSG)
-	case NUMBER_TAKEN_ERR_MSG:
-		return nil, client_errors.NewTakenNumberError(LOG_BET_NUMBER_TAKEN_ERROR_MSG)
-	case REPEATED_BET_ERR_MSG:
-		return nil, client_errors.NewRepeatedBetError(LOG_REPEATED_BET_ERROR_MSG)
-	case NOT_VALID_NUMBER_ERR_MSG:
-		return nil, client_errors.NewNotValidNumberError(LOG_NOT_VALID_BET_NUMBER_ERROR_MSG)
-	case NOT_VALID_DOCUMENT_ERR_MSG:
-		return nil, client_errors.NewNotValidDocumentError(LOG_NOT_VALID_DOC_ERROR_MSG)
-	default:
-		return nil, client_errors.NewDefaultError(err_message)
+	var error_received error
+	switch command_type {
+	case NOT_ADULT_CLIENT_ERR_TYPE:
+		error_received = client_errors.NewNotAdultClientError(LOG_NOT_ADULT_ERROR_MSG)
+	case NUMBER_TAKEN_ERR_TYPE:
+		error_received = client_errors.NewTakenNumberError(LOG_BET_NUMBER_TAKEN_ERROR_MSG)
+	case REPEATED_BET_ERR_TYPE:
+		error_received = client_errors.NewRepeatedBetError(LOG_REPEATED_BET_ERROR_MSG)
+	case NOT_VALID_NUMBER_ERR_TYPE:
+		error_received = client_errors.NewNotValidNumberError(LOG_NOT_VALID_BET_NUMBER_ERROR_MSG)
+	case NOT_VALID_DOCUMENT_ERR_TYPE:
+		error_received = client_errors.NewNotValidDocumentError(LOG_NOT_VALID_DOC_ERROR_MSG)
 	}
+	return error_received
 }
 
 // Receive bytes from server
