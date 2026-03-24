@@ -151,6 +151,7 @@ func (c *Client) StartClientLoop() {
 			len(winners_list),
 		)
 	} else {
+		fmt.Println("Comando: ", resp)
 		fmt.Println("Error: ", err)
 		log.Infof("action: consulta_ganadores | result: fail")
 	}
