@@ -1,7 +1,6 @@
 package common
 
 import (
-	"bytes"
 	"encoding/binary"
 	"io"
 	"net"
@@ -13,6 +12,9 @@ import (
 
 // Ok message
 const OK_MESSAGE = 0
+
+// Winner message
+const WINNERS_MESSAGE = 87
 
 // Errors messages for logs
 const LOG_SOCKET_ERROR_MSG = "Socket error"
@@ -37,10 +39,10 @@ const ADD_BET_MSG_HEADER = "A"
 const ADD_BETS_BATCH_MSG_HEADER = "B"
 
 // End of bets transmission
-const END_OF_BETS_HEADER = "END "
+const END_OF_BETS_MSG_HEADER = "E"
 
 // Winners from server
-const WINNERS_HEADER = "WIN "
+const WINNERS_MSG_HEADER = "W"
 
 // Header length in bytes
 const TOTAL_MSG_HEADER_BYTES = 2
@@ -122,7 +124,7 @@ func SendBetsBatch(socket net.Conn, bets []Bet, agency_number uint) error {
 
 // Send end of bets transmission
 func SendEndTxBets(socket net.Conn, agency_number uint) error {
-	message_content := END_OF_BETS_HEADER
+	message_content := END_OF_BETS_MSG_HEADER
 	message_content += strconv.FormatUint(uint64(agency_number), 10)
 	message_content_bytes := []byte(message_content)
 
@@ -167,11 +169,14 @@ func ReadServerResponse(socket net.Conn) (*agency_commands.AgencyCommand, error)
 }
 
 // Generate error according to response or nil if it is ok
-func processServerResponse(content []byte) error {
+func processServerResponse(content []byte) (*agency_commands.AgencyCommand, error) {
 	command_type := content[0]
+	rest_command := content[1:]
 
 	if command_type == OK_MESSAGE {
-		return nil
+		return agency_commands.NewOkCommand(), nil
+	} else if command_type == WINNERS_MESSAGE {
+		return agency_commands.NewWinnersCommand(rest_command), nil
 	}
 	// Check error type
 	var error_received error
@@ -187,7 +192,7 @@ func processServerResponse(content []byte) error {
 	case NOT_VALID_DOCUMENT_ERR_TYPE:
 		error_received = client_errors.NewNotValidDocumentError(LOG_NOT_VALID_DOC_ERROR_MSG)
 	}
-	return error_received
+	return nil, error_received
 }
 
 // Receive bytes from server
