@@ -175,6 +175,7 @@ func processServerResponse(content []byte) (*agency_commands.AgencyCommand, erro
 	rest_command := content[1:]
 
 	if command_type == OK_MESSAGE {
+		fmt.Println("Se recibió OK")
 		return agency_commands.NewOkCommand(), nil
 	} else if command_type == WINNERS_MESSAGE {
 		fmt.Println("Se recibieron los ganadores")
@@ -196,6 +197,7 @@ func processServerResponse(content []byte) (*agency_commands.AgencyCommand, erro
 	default:
 		fmt.Println(("Error desconocido"))
 	}
+	fmt.Println("Error recibido: ", error_received)
 	return nil, error_received
 }
 
