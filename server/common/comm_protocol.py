@@ -203,17 +203,18 @@ TOTAL_BYTES_WINNER_DOCUMENT = 4
 
 # Send winners to agency
 def send_winners(tx_socket, winners_docs):
-    message = WINNERS_HEADER.encode("utf-8", errors="ignore")
-    header = len(message) + TOTAL_BYTES_WINNER_DOCUMENT * len(winners_docs)
+    message = WINNERS_COMM_TYPE
+    header = 1 + TOTAL_BYTES_WINNER_DOCUMENT * len(winners_docs)
 
     # Append content to header
     encoded_message = bytearray()
     encoded_message.extend(header.to_bytes(TOTAL_MESSAGE_SIZE_BYTES, "big"))
-    encoded_message.extend(message)
+    encoded_message.extend(message.to_bytes(1, "big"))
 
     # Store all documents
     for doc in winners_docs:
-        encoded_message.extend(doc.to_bytes(TOTAL_BYTES_WINNER_DOCUMENT, "big"))
+        encoded_message.extend(int(doc).to_bytes(TOTAL_BYTES_WINNER_DOCUMENT, "big"))
+    print(f"Mensaje a enviar: {encoded_message}")
 
     # Send message
     tx_socket.sendall(encoded_message)
