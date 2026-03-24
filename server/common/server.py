@@ -60,7 +60,7 @@ class Server:
                 return
 
             # Process bet
-            response = OK_MESSAGE
+            response = OK_COMM_TYPE
             try:
                 command = self.__process_message(new_message, client_sock)
 
