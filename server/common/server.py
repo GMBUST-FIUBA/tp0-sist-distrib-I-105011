@@ -66,7 +66,7 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
                 agency_to_pipe_translator[new_bet.agency] = pipe_used
             # Try to store bet
             try:
-                bets_manager.store_bet_in_database()
+                bets_manager.store_bet_in_database(new_bet)
                 agencies_tx_channel[pipe_used].put((InterActorsCommand.OK,))
             except tuple(EXCEPTION_TO_INTER_COMMAND_TYPE.keys()) as e:
                 agencies_tx_channel[pipe_used].put((EXCEPTION_TO_INTER_COMMAND_TYPE[type(e)], str(e)))
@@ -87,7 +87,7 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
             except tuple(EXCEPTION_TO_INTER_COMMAND_TYPE.keys()) as e:
                 agencies_tx_channel[pipe_used].put((EXCEPTION_TO_INTER_COMMAND_TYPE[type(e)], str(e)))
             # Log result
-            logging.info(f"apuesta_recibida | result: success | cantidad: {len(new_bets)}")
+            logging.info(f"action: apuesta_recibida | result: success | cantidad: {len(new_bets)}")
         elif msg_type == InterActorsCommand.END_TX_BETS:
             agency = msg_from_agency[INTER_ACTOR_END_TX_POS]
 
