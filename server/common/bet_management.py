@@ -27,7 +27,6 @@ class BetManager:
 
     # Store batch of bets
     def store_bets_batch(self, bets: list[Bet]):
-        print("Start storing staged bets")
         # Stage all bets
         for bet in bets:
             try:
@@ -37,7 +36,6 @@ class BetManager:
                 logging.error(f"apuesta_recibida | result: fail | cantidad: {len(bets)}")
                 raise errors.WrongBatchException(str(e))
         # Store staged bets
-        print("Staged bets are stored")
         self.__store_staged_bets()
 
     def __stage_bet(self, new_bet):
@@ -75,11 +73,8 @@ class BetManager:
         all_staged_bets = [bet for bets_by_number in self.staged_bets.values() for bet in bets_by_number.values()]
         store_bets(all_staged_bets)
 
-        print("Bets stored in manager")
-
         # Erase staged bets
         self.__erase_staged_bets()
-        print("Staged bets erased")
 
     def __erase_staged_bets(self):
         self.staged_bets_numbers = set()
