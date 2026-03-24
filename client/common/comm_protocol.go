@@ -194,7 +194,7 @@ func processServerResponse(content []byte) (*agency_commands.AgencyCommand, erro
 	case NOT_VALID_DOCUMENT_ERR_TYPE:
 		error_received = client_errors.NewNotValidDocumentError(LOG_NOT_VALID_DOC_ERROR_MSG)
 	default:
-		print(("Error desconocido"))
+		fmt.Println(("Error desconocido"))
 	}
 	return nil, error_received
 }
