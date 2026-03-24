@@ -272,6 +272,8 @@ Para obtener paralelismo dentro de Python se utilizará el módulo de _multiproc
 
 Los procesos esperarán a los demás a que hayan guardado sus apuestas, y una vez que se hayan guardado todas se buscarán a los ganadores y se enviarán los resultados a los procesos, que a su vez enviarán los resultados a las agencias.
 
+Es decir que se hace una suerte de modelo de actores pero adaptado a python.
+
 
 ## Condiciones de Entrega
 Se espera que los alumnos realicen un _fork_ del presente repositorio para el desarrollo de los ejercicios y que aprovechen el esqueleto provisto tanto (o tan poco) como consideren necesario.
