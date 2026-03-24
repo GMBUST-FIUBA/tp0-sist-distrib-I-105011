@@ -134,6 +134,7 @@ class Server:
                 winners_by_agency = self._bet_manager.load_winners(self._total_agencies)
 
                 # Send to all clients its winners
+                print("Enviar ganadores")
                 for agency, winners in winners_by_agency.items():
                     tx_socket = self._agencies_detected[agency]
                     send_winners(tx_socket, winners)

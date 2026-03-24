@@ -185,6 +185,7 @@ def send_winners(tx_socket, winners_docs):
     # Store all documents
     for doc in winners_docs:
         encoded_message.extend(int(doc).to_bytes(TOTAL_BYTES_WINNER_DOCUMENT, "big"))
+    print(f"Mensaje a enviar: {encoded_message}")
 
     # Send message
     tx_socket.sendall(encoded_message)
