@@ -16,17 +16,12 @@ ADD_BETS_BATCH_COMM_TYPE = 66
 # End bets transmission
 END_BETS_TX_COMM_TYPE = 69
 
-# End bets transmission
-END_BETS_TX_HEADER = "END "
-
 # Correctly processed bet
 OK_COMM_TYPE = 0
 
 # Winners message header
 WINNERS_COMM_TYPE = 87
 
-# Winners message header
-WINNERS_HEADER = "WIN "
 
 # Add single bet message parts positions
 BET_CLIENT_FIRST_NAME_MSG_POS = 0
