@@ -11,7 +11,7 @@ TOTAL_MESSAGE_SIZE_BYTES = 2
 ADD_BET_COMM_TYPE = 65
 
 # Add batch of bets header
-ADD_BETS_BATCH_COMM_TYPE = "ADDB"
+ADD_BETS_BATCH_COMM_TYPE = 66
 
 # End bets transmission
 END_BETS_TX_HEADER = "END "
@@ -45,9 +45,8 @@ class Command(Enum):
     END_TX = 3
 
 command_header_to_enum = {
-    ADD_BET_HEADER: Command.ADD_BET,
-    ADD_BETS_BATCH_HEADER: Command.ADD_BATCH,
-    END_BETS_TX_HEADER: Command.END_TX
+    ADD_BET_COMM_TYPE: Command.ADD_BET,
+    ADD_BETS_BATCH_COMM_TYPE: Command.ADD_BATCH,
 }
 
 # Read command from socket
@@ -68,7 +67,7 @@ def identify_command(message):
     parsed_message = _parse_message_single_bet(message)
 
 def identify_command(message):
-    message_header = message[0:4].decode("utf-8", errors="ignore")
+    message_header = message[0]
 
     if message_header not in command_header_to_enum:
         return None
@@ -88,19 +87,18 @@ def create_new_bet(message):
 
     return new_bet
 
+def _parse_message_single_bet(message):
+    _, data = _parse_message(message)
+    message = data.decode("utf-8", errors="ignore")
+    split_message = message.split(',')
+    return split_message
+
 def _parse_message(message):
     # Separate message parts
     command_type = message[0]
     data = message[1:]
 
-    # Check command type
-    if command_type != ADD_BET_COMM_TYPE:
-        return None
-    
-    # Decode data
-    message = data.decode("utf-8", errors="ignore")
-    split_message = message.split(',')
-    return split_message
+    return command_type, data
 
 # Create new bets batch
 def create_new_bets_batch(message):
@@ -121,7 +119,7 @@ def create_new_bets_batch(message):
     return new_bets
 
 def _parse_message_bets_batch(message):
-    message = message[4:]
+    _, message = _parse_message(message)
     total_bets = message.pop(0)
     agency_number = message.pop(0)
     message = message.decode("utf-8", errors="ignore")
