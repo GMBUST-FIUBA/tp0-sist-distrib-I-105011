@@ -26,7 +26,8 @@ class InterActorsCommand(Enum):
     ERR_NOT_VALID_DOC = 6,
     ERR_NOT_VALID_NUM = 7,
     ERR_REPEATED_BET = 8,
-    ERR_TAKEN_BET = 9
+    ERR_TAKEN_BET = 9,
+    ERR_WRONG_BATCH = 10,
 
 ## Inter actors messages convention
 INTER_ACTOR_COMMAND_POS = 0
@@ -34,7 +35,18 @@ INTER_ACTOR_BET_POS = 1
 INTER_ACTOR_BATCH_POS = 1
 INTER_ACTOR_END_TX_POS = 1
 INTER_ACTOR_WINNERS_POS = 1
+INTER_ACTOR_ERR_TXT_POS = 1
 INTER_ACTOR_PIPE_NUM_POS = 2
+
+## Exception to inter command type
+EXCEPTION_TO_INTER_COMMAND_TYPE = {
+    NotAdultClientException: InterActorsCommand.ERR_NOT_ADULT,
+    NotValidDocumentException: InterActorsCommand.ERR_NOT_VALID_DOC,
+    NotValidBetNumberException: InterActorsCommand.ERR_NOT_VALID_NUM,
+    RepeatedBetException: InterActorsCommand.ERR_REPEATED_BET,
+    AlreadyUsedNumberException: InterActorsCommand.ERR_TAKEN_BET,
+    WrongBatchException: InterActorsCommand.ERR_WRONG_BATCH
+}
 
 def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies):
     bets_manager = BetManager()
@@ -52,8 +64,12 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
             pipe_used = msg_from_agency[INTER_ACTOR_PIPE_NUM_POS]
             if new_bet.agency not in agency_to_pipe_translator:
                 agency_to_pipe_translator[new_bet.agency] = pipe_used
-            # Store bet
-            bets_manager.store_bet_in_database()
+            # Try to store bet
+            try:
+                bets_manager.store_bet_in_database()
+                agencies_tx_channel[pipe_used].put((InterActorsCommand.OK,))
+            except tuple(EXCEPTION_TO_INTER_COMMAND_TYPE.keys()) as e:
+                agencies_tx_channel[pipe_used].put((EXCEPTION_TO_INTER_COMMAND_TYPE[type(e)], str(e)))
             # Log result
             logging.info(f'action: apuesta_almacenada | result: success | dni: {new_bet.document} | numero: {new_bet.number}')
         elif msg_type == InterActorsCommand.ADD_BATCH:
@@ -64,10 +80,14 @@ def bet_manager_process(agencies_tx_channel, agencies_rx_channel, total_agencies
             agency_id = new_bets[0].agency
             if agency_id not in agency_to_pipe_translator:
                 agency_to_pipe_translator[agency_id] = pipe_used
-            # Store batch
-            bets_manager.store_bets_batch(new_bets)
+            # Try to store batch
+            try:
+                bets_manager.store_bets_batch(new_bets)
+                agencies_tx_channel[pipe_used].put((InterActorsCommand.OK,))
+            except tuple(EXCEPTION_TO_INTER_COMMAND_TYPE.keys()) as e:
+                agencies_tx_channel[pipe_used].put((EXCEPTION_TO_INTER_COMMAND_TYPE[type(e)], str(e)))
             # Log result
-            logging.info(f'action: apuesta_recibida | result: success | cantidad: {len(new_bets)}')
+            logging.info(f"apuesta_recibida | result: success | cantidad: {len(new_bets)}")
         elif msg_type == InterActorsCommand.END_TX_BETS:
             agency = msg_from_agency[INTER_ACTOR_END_TX_POS]
 
@@ -96,22 +116,7 @@ def agency_process(client_fd, bets_manager_rx_channel, bets_tx_channel, pipe_use
                 break
 
             # Process bet
-            response = OK_MESSAGE
-            try:
-                command = __agency_process_message(new_message, client_sock, bets_manager_rx_channel, bets_tx_channel, pipe_used)
-
-                if command != Command.END_TX:
-                    send_message(client_sock, response)
-
-            except WrongBatchException as e:
-                response = str(e)
-                send_message(client_sock, response)
-                raise e
-            except Exception as e:
-                response = str(e)
-                send_message(client_sock, response)
-                logging.error(f"action: apuesta_almacenada | result: fail | error: {e}")
-                raise e
+            __agency_process_message(new_message, client_sock, bets_manager_rx_channel, bets_tx_channel, pipe_used)
 
         except Exception as e:
             client_sock.close()
@@ -125,11 +130,27 @@ def __agency_process_message(message, client_socket, bets_manager_rx_channel, be
             new_bet = create_new_bet(message)
             # Send to manager new bet
             bets_tx_channel.put((InterActorsCommand.ADD_BET, new_bet, pipe_used))
+            # Receive response
+            response = bets_manager_rx_channel.get()
+
+            # Answer according to response
+            if response[INTER_ACTOR_COMMAND_POS] == InterActorsCommand.OK:
+                send_message(client_socket, OK_MESSAGE)
+            else:
+                send_message(client_socket, response[INTER_ACTOR_ERR_TXT_POS])
         elif command == comm_protocol.Command.ADD_BATCH:
             # Get bets batch
             new_bets = create_new_bets_batch(message)
             # Send to manager the batch
             bets_tx_channel.put((InterActorsCommand.ADD_BATCH, new_bets, pipe_used))
+            # Receive response
+            response = bets_manager_rx_channel.get()
+
+            # Answer according to response
+            if response[INTER_ACTOR_COMMAND_POS] == InterActorsCommand.OK:
+                send_message(client_socket, OK_MESSAGE)
+            else:
+                send_message(client_socket, response[INTER_ACTOR_ERR_TXT_POS])
         elif command == comm_protocol.Command.END_TX:
             # Get agency that stopped
             agency = get_stopped_bet_sending_agency(message)
@@ -141,8 +162,6 @@ def __agency_process_message(message, client_socket, bets_manager_rx_channel, be
             response = bets_manager_rx_channel.get()
             if response[INTER_ACTOR_COMMAND_POS] == InterActorsCommand.WINNERS:
                 send_winners(client_socket, response[INTER_ACTOR_WINNERS_POS])
-
-        return command
 
 # Server class
 class Server:
