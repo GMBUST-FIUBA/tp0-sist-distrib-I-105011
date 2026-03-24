@@ -135,7 +135,7 @@ def __agency_process_message(message, client_socket, bets_manager_rx_channel, be
 
             # Answer according to response
             if response[INTER_ACTOR_COMMAND_POS] == InterActorsCommand.OK:
-                send_message(client_socket, OK_MESSAGE)
+                send_message(client_socket, OK_COMM_TYPE)
             else:
                 send_message(client_socket, response[INTER_ACTOR_ERR_TXT_POS])
         elif command == comm_protocol.Command.ADD_BATCH:
@@ -148,7 +148,7 @@ def __agency_process_message(message, client_socket, bets_manager_rx_channel, be
 
             # Answer according to response
             if response[INTER_ACTOR_COMMAND_POS] == InterActorsCommand.OK:
-                send_message(client_socket, OK_MESSAGE)
+                send_message(client_socket, OK_COMM_TYPE)
             else:
                 send_message(client_socket, response[INTER_ACTOR_ERR_TXT_POS])
         elif command == comm_protocol.Command.END_TX:
