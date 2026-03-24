@@ -268,11 +268,9 @@ En este ejercicio es importante considerar los mecanismos de sincronización a u
 Modificar el servidor para que permita aceptar conexiones y procesar mensajes en paralelo. En caso de que el alumno implemente el servidor en Python utilizando _multithreading_,  deberán tenerse en cuenta las [limitaciones propias del lenguaje](https://wiki.python.org/moin/GlobalInterpreterLock).
 
 #### Resolución de ejercicio 8
-Para obtener paralelismo dentro de Python se utilizará el módulo de _multiprocessing_. Se creará un *Thread Pool* y por cada agencia se generará un proceso que será manejado por alguno de los hilos. A su vez, se creará un proceso al cual pueden conectarse todos procesos de agencias que se encargará de almacenar las apuestas realizadas por los clientes.
+Para obtener paralelismo dentro de Python se utilizará el módulo de _multiprocessing_. Por cada agencia se generará un proceso que será manejado por alguno de los procesadores. A su vez, se creará un proceso al cual pueden conectarse todos los procesos de agencias que se encargará de almacenar las apuestas realizadas por los clientes. Los procesos esperarán a los demás a que hayan guardado sus apuestas, y una vez que se hayan guardado todas se buscarán a los ganadores y se enviarán los resultados a los procesos, que a su vez enviarán los resultados a las agencias. La comunicación entre los procesos se realizará a través de canales seguros para usar entre distintos procesos. Es decir que se hace una suerte de modelo de actores pero adaptado a python.
 
-Los procesos esperarán a los demás a que hayan guardado sus apuestas, y una vez que se hayan guardado todas se buscarán a los ganadores y se enviarán los resultados a los procesos, que a su vez enviarán los resultados a las agencias.
-
-Es decir que se hace una suerte de modelo de actores pero adaptado a python.
+**ACLARACIÓN:** Este código crea un proceso por cada una de las agencias que haya. Esto puede generar problemas ya que existe la posibilidad de crear infinitos procesos y agotar los recursos de la máquina donde se ejecute el código. Lo ideal sería utilizar un pool de threads pero debido a las limitaciones impuestas por el trabajo se terminó utilizando esta opción.
 
 
 ## Condiciones de Entrega
