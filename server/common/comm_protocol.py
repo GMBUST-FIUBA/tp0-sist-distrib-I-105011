@@ -47,6 +47,7 @@ class Command(Enum):
 command_header_to_enum = {
     ADD_BET_COMM_TYPE: Command.ADD_BET,
     ADD_BETS_BATCH_COMM_TYPE: Command.ADD_BATCH,
+    END_BETS_TX_COMM_TYPE: Command.END_TX
 }
 
 # Identify commands
