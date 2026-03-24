@@ -2,6 +2,7 @@ package common
 
 import (
 	"encoding/binary"
+	"fmt"
 	"io"
 	"net"
 	"strconv"
@@ -176,6 +177,7 @@ func processServerResponse(content []byte) (*agency_commands.AgencyCommand, erro
 	if command_type == OK_MESSAGE {
 		return agency_commands.NewOkCommand(), nil
 	} else if command_type == WINNERS_MESSAGE {
+		fmt.Println("Se recibieron los ganadores")
 		return agency_commands.NewWinnersCommand(rest_command), nil
 	}
 	// Check error type
@@ -191,6 +193,8 @@ func processServerResponse(content []byte) (*agency_commands.AgencyCommand, erro
 		error_received = client_errors.NewNotValidNumberError(LOG_NOT_VALID_BET_NUMBER_ERROR_MSG)
 	case NOT_VALID_DOCUMENT_ERR_TYPE:
 		error_received = client_errors.NewNotValidDocumentError(LOG_NOT_VALID_DOC_ERROR_MSG)
+	default:
+		print(("Error desconocido"))
 	}
 	return nil, error_received
 }
